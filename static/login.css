@@ -1,0 +1,82 @@
+h2 {
+    text-align: center;
+}
+
+form {
+    max-width: 400px;
+    width: 90%;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.form-row {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}
+
+label {
+    font-size: 1.2rem;
+    width: 5rem;
+    flex-shrink: 0;
+
+}
+
+input {
+    font-size: 1.4rem;
+    width: 100%;
+    border: none;
+    margin-bottom: 1vh;
+    margin: 0 auto;
+    border-bottom: 0.1em solid #dfdfdf;
+    transition: border-bottom 0.2s;
+}
+
+input:focus {
+    outline: none;
+    border-bottom: 2px solid skyblue;
+}
+
+input:invalid {
+    border-bottom: 0.1em solid hotpink;
+}
+
+p {
+    font-style: italic;
+    color: grey;
+    text-align: center;
+}
+
+p.error {
+    color: red;
+}
+
+button {
+    border: none;
+    font-size: 20px;
+    padding: 0.5em 2em;
+    border-radius: 4px;
+    margin: 0.5em;
+    cursor: pointer;
+    width: 100%;
+}
+
+button.login {
+    background-color: skyblue;
+}
+
+button.sign-up {
+    background-color: hotpink;
+}
+
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 1em;
+}
+
+p {
+    color: red; /* farbe eventuell abändern */
+}

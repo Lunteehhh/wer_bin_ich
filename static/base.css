@@ -1,0 +1,49 @@
+.base-page h1 {
+    color: #333;
+}
+
+/* Navigation */
+.base-page ul {
+    list-style-type: none;
+    margin: 0; /* war: 100 → besser 0 oder z.B. 1em */
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+    border-radius: 5px;
+    display: flex; /* moderner als float */
+}
+
+.base-page li {
+    flex: 1;
+}
+
+.base-page li a {
+    font-weight: bold;
+    display: block;
+    color: skyblue;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    border-bottom: 3px solid #dfdfdf;
+}
+
+.base-page li a:hover {
+    color: skyblue;
+    background-color: #666;
+    border-bottom: 3px solid skyblue;
+}
+
+.base-page nav a.active {
+    color: hotpink;
+    font-weight: bold;
+    border-bottom: 3px solid skyblue;
+}
+
+.website-width {
+    max-width: 960px;      /* oder 800px, 1024px … je nach Wunsch */
+    margin: 0 auto;        /* zentriert horizontal */
+    padding: 1em;          /* etwas Abstand innen */
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+

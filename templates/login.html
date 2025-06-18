@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}title{% endblock %}
+
+{% block content %}
+
+
+<link href="static/login.css" rel="stylesheet">
+
+<h2>Login</h2>
+
+{% if sign_up %}
+<form action="/sign_up" method="post">
+    <div class="form-row">
+        <label for="name-su">Name:</label>
+        <input name="name" type="text" id="name-su" placeholder="1-24 signs.." minlength="1" maxlength="24" required>
+    </div>
+    <div class="form-row">
+        <label for="password-su">Password:</label>
+        <input name="password" type="password" id="password-su" placeholder="4-32 signs.." minlength="4" maxlength="32" required>
+    </div>
+    <div class="form-row">
+        <label for="password-retry-su">Password:</label>
+        <input name="password_retry" type="password" id="password-retry-su" placeholder="retry the password" minlength="4" maxlength="32" required>
+    </div>
+    {% if error_num == 1 %}
+    <p>Name is forgiven please try another name.</p>
+    {% elif error_num == 2 %}
+    <p>Password aren't the same.</p>
+    {% endif %}
+    <div class="button-group">
+        <button name="action" value="login" class="login" formnovalidate>abort</button>
+        <button name="action" value="sign up" type="submit" class="sign-up">Sign Up</button>
+    </div>
+</form>
+{% else %}
+<form action="/login" method="post">
+    <div class="form-row">
+        <label for="name">Name:</label>
+        <input name="name" type="text" id="name" placeholder="1-24 signs.." minlength="1" maxlength="24" required>
+    </div>
+    <div class="form-row">
+        <label for="password">Password:</label>
+        <input name="password" type="password" id="password" placeholder="4-32 signs.." minlength="4" maxlength="32" required>
+    </div>
+    <div class="button-group">
+        <button name="action" value="login" type="submit" class="login">Login</button>
+        <button name="action" value="sign up" class="sign-up" formnovalidate>Sign Up</button>
+    </div>
+    {% if error_num == 1 %}
+    <p>password or username was incorrect</p>
+    {% endif %}
+</form>
+{% endif %}
+
+{% endblock %}

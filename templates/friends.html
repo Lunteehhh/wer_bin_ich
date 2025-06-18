@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}friends{% endblock %}
+{% block content %}
+<div class="friends">
+    <link href="/static/friends.css" rel="stylesheet">
+
+    <form method="post" action="/search/">
+        <label for="search-bar">search:</label>
+        <input name="search_bar" id="search-bar" minlength="1" maxlength="24">
+    </form>
+
+    {% if friends_page %}
+    <iframe src="/data/friends_pages/{{ friends_page }}.html"></iframe>
+    {% elif search_result %}
+    <ul>
+        {% for result in search_result %}
+        <li>
+            <a href="/friends/{{ result[0] }}" target="_blank">{{ result[0] }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>NOTHING...</p>
+    {% endif %}
+</div>
+
+{% endblock %}

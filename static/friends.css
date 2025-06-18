@@ -1,0 +1,30 @@
+
+
+.friends form {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-align: right;
+}
+
+.friends label {
+    font-size: 18px;
+}
+
+.friends input {
+    font-size: 18px;
+    width: 15em;
+}
+
+.friends li {
+    list-style-type: none;
+}
+
+.friends iframe {
+    border: 0;
+    width: 100%;
+    height: 100vh;
+}
+
+.friends a {
+    font-size: 20px;
+}

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="/static/base.css" rel="stylesheet">
+    <title>
+        {% block title %}WhoAmI{% endblock %}
+    </title>
+</head>
+<body>
+    <div class="website-width">
+        <header class="base-page">
+            <h1>WHO AM I?</h1>
+            <nav>
+                <ul>
+                    <li><a href="/" class="{% if index_tab == 'home' %}active{% endif %}">Start</a></li>
+                    <li><a href="/rules" class="{% if index_tab == 'rules' %}active{% endif %}">Regeln</a></li>
+                    <li><a href="/boring" class="{% if index_tab == 'boring' %}active{% endif %}">Langeweile</a></li>
+                    <li><a href="/friends" class="{% if index_tab == 'friends' %}active{% endif %}">Freunde</a></li>
+                    {% if user_name %}
+                    <li><a href="/you" class="{% if index_tab == 'you' %}active{% endif %}">You ({{user_name}})</a></li>
+                    {% else %}
+                    <li><a href="/login" class="{% if index_tab == 'you' %}active{% endif %}">You (login)</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </header>
+        <main>
+            {% block content %}
+
+            {% endblock %}
+        </main>
+    </div>
+</body>
+</html>
