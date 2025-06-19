@@ -1,6 +1,13 @@
 import sqlite3
 
 
+def init():
+    conn = sqlite3.connect("data/auth.db")
+    cursor = conn.cursor()
+
+    cursor.execute("CREATE TABLE IF NOT EXISTS users(name TEXT PRIMARY KEY, password TEXT NOT NULL)")
+    conn.commit()
+
 def check_data(name: str, password: str) -> bool | None:
     conn = sqlite3.connect("data/auth.db")
     cursor = conn.cursor()

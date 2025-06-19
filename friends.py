@@ -1,7 +1,7 @@
 import sqlite3
 
 
-def init_database():
+def init():
     conn = sqlite3.connect("data/friends.db")
     cursor = conn.cursor()
 

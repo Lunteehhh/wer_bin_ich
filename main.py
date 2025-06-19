@@ -122,8 +122,12 @@ async def search(request: Request,
         "search_result": results
     })
 
+def init():
+    friends_func.init()
+    auth.init()
 
 if __name__ == "__main__":
+    init()
     import uvicorn
 
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
