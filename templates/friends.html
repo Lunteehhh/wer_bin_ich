@@ -6,8 +6,9 @@
     <link href="/static/friends.css" rel="stylesheet">
 
     <form method="post" action="/search/">
-        <label for="search-bar">search:</label>
-        <input name="search_bar" id="search-bar" minlength="1" maxlength="24">
+        <label>search:
+            <input name="search_bar" id="search-bar" minlength="1" maxlength="24">
+        </label>
     </form>
 
     {% if friends_page %}
