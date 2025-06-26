@@ -33,8 +33,10 @@ def check_if_username_forgiven(name: str) -> bool:
     cursor.execute(f"SELECT name FROM users")
     value = cursor.fetchall()
     print(value)
+
+    value = list(map(lambda x: x[0], value))
     if value:
-        value = set(value[0])
+        value = set(value)
         if name in value:
             return True
         else:
@@ -48,5 +50,13 @@ def register_new_account(name: str, password: str):
     cursor = conn.cursor()
 
     cursor.execute("INSERT INTO users(name, password) VALUES (?, ?)", (name, password))
+    conn.commit()
+
+
+def remove(name: str):
+    conn = sqlite3.connect("data/auth.db")
+    cursor = conn.cursor()
+
+    cursor.execute(f"DELETE FROM users WHERE name = ?", (name, ))
     conn.commit()
 

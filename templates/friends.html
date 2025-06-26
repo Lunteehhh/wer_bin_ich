@@ -1,18 +1,26 @@
 {% extends "base.html" %}
 
 {% block title %}friends{% endblock %}
+
 {% block content %}
 <div class="friends">
     <link href="/static/friends.css" rel="stylesheet">
 
-    <form method="post" action="/search/">
-        <label>search:
-            <input name="search_bar" id="search-bar" minlength="1" maxlength="24">
-        </label>
-    </form>
+        <form method="post" action="/search/">
+            {% if results_count %}
+            <span>{{ results_count }}/{{ friends_count }} friends</span>
+            {% else %}
+            <span>...</span>
+            {% endif %}
+
+            <label>search:
+                <input name="search_bar" id="search-bar" minlength="1" maxlength="24">
+            </label>
+        </form>
 
     {% if friends_page %}
-    <iframe src="/data/friends_pages/{{ friends_page }}.html"></iframe>
+    {{ friends_page }}
+    <iframe src="{{ friends_page }}"></iframe>
     {% elif search_result %}
     <ul>
         {% for result in search_result %}

@@ -1,18 +1,37 @@
 {% extends "base.html" %}
 
+
 {% block title %}you{% endblock %}
 
 {% block content %}
+<link href="/static/you.css" rel="stylesheet">
 
-<h2>You</h2>
+<h2>{{ user_name }}</h2>
 
-name: {{user_name}}<a href="/logout/">Logout</a><br>
-<form action="/upload_html/" enctype="multipart/form-data" method="post">
-    <label>Laden sie ihre Freundesseite hoch als html.
-        <input name="html_file" type="file" accept=".html" required>
-    </label>
-    <button type="submit">Speichern</button>
-</form>
+<div class="you-content">
+    <div class="you-content-flex">
+        <form action="/upload_html/" enctype="multipart/form-data" method="post">
+            <label>
+                Laden Sie Ihre Freundesseite hoch als HTML. <span>(sripte sind nicht erlaubt)</span><br>
+                <input name="html_file" type="file" accept=".html">
+            </label>
+
+            <button type="submit" name="action" value="upload" class="file-save">Speichern</button>
+            <button type="submit" name="action" value="reset" class="file-reset">Zurücksetzen</button>
+        </form>
+        <iframe src="{{ friends_page }}" title="Your friends page entry"></iframe>
+    </div>
+    <div class="exit-buttons">
+        <form action="/logout/" method="post">
+           <button type="submit" class="logout">Abmelden</button>
+        </form>
+
+        <form action="/delete-account/" method="post">
+            <button type="submit" class="delete">Account löschen</button>
+        </form>
+    </div>
+</div>
+
 
 
 

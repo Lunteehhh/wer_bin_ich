@@ -47,3 +47,18 @@
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
+/* footer */
+.footer-content {
+    display: flex;
+    width: 60rem;
+    margin: 0 auto;
+}
+
+.footer-section {
+    display: inline-block;
+    width: 100%;
+}
+
+.footer-section p {
+    line-height: 0.4em;
+}

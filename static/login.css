@@ -1,9 +1,10 @@
-h2 {
+
+.login-content h2 {
     text-align: center;
 }
 
-form {
-    max-width: 400px;
+.login-content form {
+    max-width: 450px;
     width: 90%;
     margin: auto;
     display: flex;
@@ -11,20 +12,20 @@ form {
     gap: 1em;
 }
 
-.form-row {
+.login-content .form-row {
     display: flex;
     align-items: center;
     gap: 1em;
 }
 
-label {
+.login-content label {
     font-size: 1.2rem;
-    width: 5rem;
+    width: 8rem;
     flex-shrink: 0;
 
 }
 
-input {
+.login-content input {
     font-size: 1.4rem;
     width: 100%;
     border: none;
@@ -34,49 +35,83 @@ input {
     transition: border-bottom 0.2s;
 }
 
-input:focus {
+.login-content input:focus {
     outline: none;
     border-bottom: 2px solid skyblue;
 }
 
-input:invalid {
+.login-content input:invalid {
     border-bottom: 0.1em solid hotpink;
 }
 
-p {
+.login-content p {
     font-style: italic;
     color: grey;
     text-align: center;
 }
 
-p.error {
+.login-content p.error {
     color: red;
 }
 
-button {
-    border: none;
+.login-content a.login, .login-content a.sign-up {
+    text-decoration: none;
+    color: black;
+    width: 200px;
+    padding: 15px 20px;
     font-size: 20px;
-    padding: 0.5em 2em;
     border-radius: 4px;
-    margin: 0.5em;
-    cursor: pointer;
-    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
 }
 
-button.login {
+.login-content button.login, .login-content button.sign-up {
+    cursor: pointer;
+    width: 200px;
+    padding: 15px 20px;
+    font-size: 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+}
+
+.login-content a.login {
     background-color: skyblue;
 }
 
-button.sign-up {
+.login-content a.sign-up {
     background-color: hotpink;
 }
 
-.button-group {
+.login-content button.login {
+    background-color: skyblue;
+}
+
+.login-content button.sign-up {
+    background-color: hotpink;
+}
+
+.login-content .button-group {
     display: flex;
     justify-content: center;
     gap: 1em;
 }
 
-p {
-    color: red; /* farbe eventuell abändern */
+.login-content .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.login-content .checkbox-row input[type="checkbox"] {
+    flex-shrink: 0; /* Checkbox bleibt fix in der Größe */
+    width: 20px;
+    height: 20px;
+}
+
+.login-content .checkbox-row label {
+    flex-grow: 1;      /* Label füllt den restlichen Platz */
+    max-width: 400px;  /* max Breite begrenzen */
+    line-height: 1.3;
+    overflow-wrap: break-word; /* Umbrüche erlauben */
 }

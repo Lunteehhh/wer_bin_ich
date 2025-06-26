@@ -1,0 +1,79 @@
+
+.you-content {
+    width: 100%;
+}
+
+.you-content-flex {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.you-content-flex form {
+    padding: 10px 10px;
+    flex: 1;
+}
+
+.you-content-flex input[type="file"] {
+  font-family: sans-serif;
+  padding: 0.5rem;
+  background-color: #f0f0f0;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.you-content-flex input[type="file"]:hover {
+  background-color: skyblue;
+}
+
+.file-reset, .file-save {
+    border: none;
+    font-size: 16px;
+}
+
+.file-save {
+    background-color: skyblue;
+}
+
+.file-reset {
+    background-color: hotpink;
+}
+
+.you-content iframe {
+    flex: 1;
+    height: 20rem;
+}
+
+.exit-buttons {
+    display: flex;
+    justify-content: center;
+    width: 90%;
+    margin: 0 auto;
+    gap: 1rem;
+}
+
+.exit-buttons form {
+    padding: 20px 5px;
+}
+
+.exit-buttons button {
+    font-size: 20px;
+    justify-content: center;
+    border: none;
+    color: white;
+    width: 15rem;
+    height: 2rem;
+}
+
+.exit-buttons button.logout {
+    background-color: grey;
+}
+
+.exit-buttons button.delete {
+    background-color: red;
+}
+
+
+
