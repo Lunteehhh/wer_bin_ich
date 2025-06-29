@@ -1,9 +1,10 @@
-from fastapi import FastAPI, Request, Form, Cookie, UploadFile, File
+from fastapi import FastAPI, Request, Form, Cookie, UploadFile, File, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 import re
+from datetime import timedelta
 
 import auth
 import friends as friends_func
@@ -65,12 +66,12 @@ async def sign_up(request: Request):
 
 
 @app.get("/you", response_class=HTMLResponse)
-async def you(request: Request, user_name: str = Cookie(default=None)):
-    friends_page = friends_func.search(user_name)[0][1]
+async def you(request: Request, current_user: dict = Depends(auth.check_access_token)):
+    friends_page = friends_func.search(current_user["user_name"])[0][1]
     return templates.TemplateResponse("you.html", {
         "request": request,
         "index_tab": "you",
-        "user_name": user_name,
+        "user_name": current_user["user_name"],
         "friends_page": friends_page
     })
 
@@ -102,6 +103,8 @@ async def login_form(request: Request,
         match auth.check_data(name, password):
             case True:
                 response = RedirectResponse(url="/you", status_code=302)
+                token = auth.create_token({"sub": name})
+                response.set_cookie("access_token", token, httponly=True)
                 response.set_cookie("user_name", name)
                 return response
             case False:
@@ -126,8 +129,10 @@ async def sign_up_form(request: Request,
         auth.register_new_account(name, password)
         friends_func.add(name)
         response = RedirectResponse(url="/you", status_code=302)
-        response.set_cookie(key="logged_in", value="1")
-        response.set_cookie(key="user_name", value=name)
+        token = auth.create_token({"sub": name})
+        response.set_cookie("access_token", token, httponly=True)
+        response.set_cookie("user_name", name)
+
         return response
     elif action == "login":
         return templates.TemplateResponse("login.html", {"request": request, "index_tab": "you"})
@@ -183,6 +188,7 @@ async def search(request: Request,
 async def logout(request: Request):
     response = RedirectResponse(url="/login", status_code=302)
     response.delete_cookie("user_name")
+    response.delete_cookie("access_token")
     return response
 
 
@@ -192,6 +198,7 @@ async def delete_account(request: Request, user_name: str = Cookie(default=None)
     auth.remove(user_name)
     response = RedirectResponse(url="/login", status_code=303)
     response.delete_cookie("user_name")
+    response.delete_cookie("access_token")
     return response
 
 
