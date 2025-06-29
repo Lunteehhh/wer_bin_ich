@@ -1,6 +1,9 @@
 import sqlite3
 
+import os
+
 from typing import Optional
+
 
 try:
     conn = sqlite3.connect("data/friends.db")
@@ -49,11 +52,18 @@ def add(name: str):
 
 
 def remove(name: str):
+    global friends_count
     conn = sqlite3.connect("data/friends.db")
     cursor = conn.cursor()
 
     cursor.execute(f"DELETE FROM friends WHERE name = ?", (name,))
     conn.commit()
+
+    friends_page_pah = f"data/friends_pages/{name}.html"
+    if os.path.exists(friends_page_pah):
+        os.remove(friends_page_pah)
+
+    friends_count -= 1
 
 
 def update_friends_page(name: str, friends_page: Optional[str] = None):
@@ -64,6 +74,10 @@ def update_friends_page(name: str, friends_page: Optional[str] = None):
         cursor.execute(f"UPDATE friends SET friends_page = \"{friends_page}\" WHERE name = \"{name}\"")
     else:
         cursor.execute(f"UPDATE friends SET friends_page = \"/friends-page?name={name}\" WHERE name = \"{name}\"")
+
+        friends_page_pah = f"data/friends_pages/{name}.html"
+        if os.path.exists(friends_page_pah):
+            os.remove(friends_page_pah)
     conn.commit()
 
 if __name__ == "__main__":
