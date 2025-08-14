@@ -9,6 +9,9 @@ from config import PRAGMA_KEY, SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE
 
 
 def init():
+    """
+    initialize the auth databank with the PRAGMA_KEY of the config.py
+    """
     conn = sqlite.connect("data/auth.db")
     cursor = conn.cursor()
     cursor.execute(f'PRAGMA key = "{PRAGMA_KEY}"')
@@ -19,13 +22,20 @@ def init():
 
 
 def check_data(name: str, password: str) -> bool | None:
+    """
+    checks if the login params correct
+
+    :param name: name of the user
+    :param password: of the user
+    :return: None if not user was found, True for passsword correct else False
+    """
     conn = sqlite.connect("data/auth.db")
     cursor = conn.cursor()
     cursor.execute(f'PRAGMA key = "{PRAGMA_KEY}"')
 
     cursor.execute(f"SELECT password FROM users WHERE name = ?", (name,))
     value = cursor.fetchone()
-    print(value)
+
     if value:
         return value[0] == password
     else:
@@ -34,9 +44,10 @@ def check_data(name: str, password: str) -> bool | None:
 
 def check_if_username_forgiven(name: str) -> bool:
     """
+    checks th auth.db if a user have the name
 
     :param name: name that will check if its forgiven
-    :return: True for is forgiven else False
+    :return: True if name forgiven else False
     """
     conn = sqlite.connect("data/auth.db")
     cursor = conn.cursor()
@@ -44,7 +55,6 @@ def check_if_username_forgiven(name: str) -> bool:
 
     cursor.execute(f"SELECT name FROM users")
     value = cursor.fetchall()
-    print(value)
 
     value = list(map(lambda x: x[0], value))
     if value:
@@ -58,6 +68,12 @@ def check_if_username_forgiven(name: str) -> bool:
 
 
 def register_new_account(name: str, password: str):
+    """
+    Register a new and insert the name and password.
+
+    :param name: name of the new user
+    :param password: password of the new user
+    """
     conn = sqlite.connect("data/auth.db")
     cursor = conn.cursor()
     cursor.execute(f'PRAGMA key = "{PRAGMA_KEY}"')
@@ -67,6 +83,11 @@ def register_new_account(name: str, password: str):
 
 
 def remove(name: str):
+    """
+    Deletes a user entry in the auth.db.
+
+    :param name: name of the user
+    """
     conn = sqlite.connect("data/auth.db")
     cursor = conn.cursor()
     cursor.execute(f'PRAGMA key = "{PRAGMA_KEY}"')
@@ -76,14 +97,24 @@ def remove(name: str):
 
 
 def create_token(data: dict):
-    to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + ACCESS_TOKEN_EXPIRE
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, ALGORITHM)
+    """
+    Creates the JWToken and adds the guilty time
+
+    :param data: dict of the user dsta
+    """
+    data["exp"] = datetime.now(timezone.utc) + ACCESS_TOKEN_EXPIRE
+
+    encoded_jwt = jwt.encode(data, SECRET_KEY, ALGORITHM)
+
     return encoded_jwt
 
 
 async def check_access_token(request: Request):
+    """
+    checks if the JWToken if
+
+    :param request:
+    """
     token = request.cookies.get("access_token")
     if not token:
         raise HTTPException(
@@ -92,10 +123,8 @@ async def check_access_token(request: Request):
         )
 
     try:
-        # 2) Token decodieren
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
-        # 3) Username aus Payload holen
         user_name = payload.get("sub")
         if user_name is None:
             raise HTTPException(

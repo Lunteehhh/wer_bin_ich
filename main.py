@@ -134,7 +134,7 @@ async def sign_up_form(request: Request,
         response.set_cookie("user_name", name)
 
         return response
-    elif action == "login":
+    else:
         return templates.TemplateResponse("login.html", {"request": request, "index_tab": "you"})
 
 
