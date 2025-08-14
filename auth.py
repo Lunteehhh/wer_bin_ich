@@ -3,9 +3,9 @@ from jose import JWTError, jwt
 from pysqlcipher3 import dbapi2 as sqlite
 
 
-from datetime import timedelta, datetime, timezone
+from datetime import datetime, timezone
 
-from config import PRAGMA_KEY, SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE
+from core.config import PRAGMA_KEY, SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE
 
 
 def init():
