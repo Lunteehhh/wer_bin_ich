@@ -1,0 +1,13 @@
+{% extends "itfd_creator/base_tools.html" %}
+
+{% block tools_content %}
+<h1>Add Item</h1>
+
+<form id="map-form" method="post" action="/itfd-creator/add-map">
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required>
+
+
+    <button type="submit">Add Map</button>
+</form>
+{% endblock %}

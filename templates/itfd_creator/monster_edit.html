@@ -1,0 +1,122 @@
+{% extends "itfd_creator/base_tools.html" %}
+
+{% block tools_content %}
+<h1>Edit Monster</h1>
+
+<form id="monster-form" method="post" action="/itfd-creator/edit-monster/{{monster[0]}}">
+    <h2>Monster bearbeiten</h2>
+
+    <div>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" value="{{ monster[0] }}" required>
+    </div>
+
+    <div>
+        <label for="strength">Strength:</label>
+        <input type="number" id="strength" name="strength" min="0" step="1" value="{{ monster[1] }}" required>
+    </div>
+
+    <div>
+        <label for="health">Health:</label>
+        <input type="number" id="health" name="health" min="0" step="1" value="{{ monster[2] }}" required>
+    </div>
+
+    <div>
+        <label for="xp">XP:</label>
+        <input type="number" id="xp" name="xp" min="0" step="1" value="{{ monster[3] }}" required>
+    </div>
+
+    <hr>
+
+    <!-- Items -->
+    <fieldset>
+        <legend>Items:</legend>
+        <div id="items-list">
+            {% for item in monster[4] %}
+            <div>
+                <input type="number" name="items" min="0" step="1" value="{{ item }}" required>
+                <button type="button" class="remove-btn">✕</button>
+            </div>
+            {% endfor %}
+        </div>
+        <button type="button" id="add-item-btn">+ Add Item</button>
+    </fieldset>
+
+    <hr>
+
+    <!-- Sentences -->
+    <fieldset>
+        <legend>Sentences:</legend>
+        <div id="sentences-list">
+            {% for sentence in monster[5] %}
+            <div>
+                <input type="text" name="sentences" value="{{ sentence }}" required>
+                <button type="button" class="remove-btn">✕</button>
+            </div>
+            {% endfor %}
+        </div>
+        <button type="button" id="add-sentence-btn">+ Add Sentence</button>
+    </fieldset>
+
+    <hr>
+
+    <button type="submit">Update Monster</button>
+</form>
+
+<!-- Templates für neue Zeilen -->
+<template id="item-row-tpl">
+    <div>
+        <input type="number" name="items" min="0" step="1" placeholder="Item-ID" required>
+        <button type="button" class="remove-btn">✕</button>
+    </div>
+</template>
+
+<template id="sentence-row-tpl">
+    <div>
+        <input type="text" name="sentences" placeholder="Satz" required>
+        <button type="button" class="remove-btn">✕</button>
+    </div>
+</template>
+
+<script>
+(function() {
+    const itemsList = document.getElementById('items-list');
+    const sentencesList = document.getElementById('sentences-list');
+    const itemTpl = document.getElementById('item-row-tpl');
+    const sentenceTpl = document.getElementById('sentence-row-tpl');
+
+    function addRemoveHandler(button, listEl, rowEl) {
+        button.addEventListener('click', () => {
+            listEl.removeChild(rowEl);
+        });
+    }
+
+    function addRow(listEl, tplEl) {
+        const node = tplEl.content.firstElementChild.cloneNode(true);
+        addRemoveHandler(node.querySelector('.remove-btn'), listEl, node);
+        listEl.appendChild(node);
+    }
+
+    // Event-Listener für schon vorhandene Zeilen setzen
+    document.querySelectorAll('#items-list .remove-btn').forEach(btn => {
+        addRemoveHandler(btn, itemsList, btn.parentElement);
+    });
+    document.querySelectorAll('#sentences-list .remove-btn').forEach(btn => {
+        addRemoveHandler(btn, sentencesList, btn.parentElement);
+    });
+
+    // Buttons für neue Zeilen
+    document.getElementById('add-item-btn').addEventListener('click', () => {
+        addRow(itemsList, itemTpl);
+    });
+
+    document.getElementById('add-sentence-btn').addEventListener('click', () => {
+        addRow(sentencesList, sentenceTpl);
+    });
+
+    // Falls keine Zeilen existieren, eine neue hinzufügen
+    if(itemsList.children.length === 0) addRow(itemsList, itemTpl);
+    if(sentencesList.children.length === 0) addRow(sentencesList, sentenceTpl);
+})();
+</script>
+{% endblock %}

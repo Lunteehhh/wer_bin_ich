@@ -1,0 +1,16 @@
+{% extends "itfd_creator/base_tools.html" %}
+
+{% block tools_content %}
+<h1>Maps</h1>
+
+<ul>
+    {% for map_name in maps %}
+    <li>
+        <a href="/itfd-creator/maps/{{ map_name }}">{{ map_name }}</a>
+    </li>
+    {% endfor %}
+</ul>
+
+<a href="/itfd-creator/add-map">Add Map</a>
+
+{% endblock %}

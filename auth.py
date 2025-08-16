@@ -1,3 +1,5 @@
+import os
+
 from fastapi import Request, HTTPException, status
 from jose import JWTError, jwt
 from pysqlcipher3 import dbapi2 as sqlite
@@ -71,15 +73,19 @@ def register_new_account(name: str, password: str):
     """
     Register a new and insert the name and password.
 
-    :param name: name of the new user
-    :param password: password of the new user
+    :param name: Name of the new user
+    :param password: Password of the new user
     """
     conn = sqlite.connect("data/auth.db")
     cursor = conn.cursor()
     cursor.execute(f'PRAGMA key = "{PRAGMA_KEY}"')
 
-    cursor.execute("INSERT INTO users(name, password) VALUES (?, ?)", (name, password))
+    cursor.execute("INSERT INTO users(name, password) VALUES (?, ?)",
+                   (name, password))
     conn.commit()
+
+    os.makedirs(f"data/users/{name}")
+    os.makedirs(f"data/users/{name}/itfd_creator")
 
 
 def remove(name: str):
@@ -117,31 +123,22 @@ async def check_access_token(request: Request):
     """
     token = request.cookies.get("access_token")
     if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Nicht eingeloggt.",
-        )
+        return {"error": 1}
 
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
         user_name = payload.get("sub")
         if user_name is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token ungültig.",
-            )
+            return {"error": 2}
 
     except JWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token konnte nicht verifiziert werden.",
-        )
+        return {"error": 3}
 
     if not check_if_username_forgiven(user_name):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Benutzer nicht gefunden.",
-        )
+        return {"error": 4}
 
-    return {"user_name": user_name}
+    return {
+        "error": 0,
+        "user_name": user_name
+    }

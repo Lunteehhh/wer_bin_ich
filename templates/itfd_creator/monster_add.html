@@ -1,0 +1,110 @@
+{% extends "itfd_creator/base_tools.html" %}
+
+{% block tools_content %}
+<h1>Add Monster</h1>
+
+<form id="monster-form" method="post" action="/itfd-creator/add-monster">
+    <h2>Neues Monster</h2>
+
+    <div>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+    </div>
+
+    <div>
+        <label for="strength">Strength:</label>
+        <input type="number" id="strength" name="strength" min="0" step="1" required>
+    </div>
+
+    <div>
+        <label for="health">Health:</label>
+        <input type="number" id="health" name="health" min="0" step="1" required>
+    </div>
+
+    <div>
+        <label for="xp">XP:</label>
+        <input type="number" id="xp" name="xp" min="0" step="1" required>
+    </div>
+
+    <hr>
+
+    <!-- Items -->
+    <fieldset>
+        <legend>Items:</legend>
+        <div id="items-list"></div>
+        <button type="button" id="add-item-btn">+ Add Item</button>
+    </fieldset>
+
+    <hr>
+
+    <!-- Sätze -->
+    <fieldset>
+        <legend>Sentences:</legend>
+        <div id="sentences-list"></div>
+        <button type="button" id="add-sentence-btn">+ Add Sentence</button>
+    </fieldset>
+
+    <hr>
+
+    <button type="submit">Save Monster</button>
+</form>
+
+<!-- Templates -->
+<template id="item-row-tpl">
+    <div>
+        <select name="items" required></select>
+        <button type="button" class="remove-btn">✕</button>
+    </div>
+</template>
+
+<template id="sentence-row-tpl">
+    <div>
+        <input type="text" name="sentences" placeholder="Satz" required>
+        <button type="button" class="remove-btn">✕</button>
+    </div>
+</template>
+
+<script>
+(function() {
+    const possible_items = {{ possible_items | default([]) | tojson | safe }};
+
+    const itemsList = document.getElementById('items-list');
+    const sentencesList = document.getElementById('sentences-list');
+    const itemTpl = document.getElementById('item-row-tpl');
+    const sentenceTpl = document.getElementById('sentence-row-tpl');
+
+    function addItemRow() {
+        const node = itemTpl.content.firstElementChild.cloneNode(true);
+        const select = node.querySelector('select');
+
+        if (possible_items.length) {
+            select.innerHTML = `
+                <option value="" disabled selected>-- Select Item --</option>
+                ${possible_items.map(i => `<option value="${i[0]}">${i[0]}: ${i[1]}</option>`).join('')}
+            `;
+        } else {
+            select.innerHTML = `<option value="">No items available</option>`;
+            select.disabled = true;
+        }
+
+        node.querySelector('.remove-btn').addEventListener('click', () => {
+            itemsList.removeChild(node);
+        });
+
+        itemsList.appendChild(node);
+    }
+
+    function addSentenceRow() {
+        const node = sentenceTpl.content.firstElementChild.cloneNode(true);
+        node.querySelector('.remove-btn').addEventListener('click', () => {
+            sentencesList.removeChild(node);
+        });
+        sentencesList.appendChild(node);
+    }
+
+    document.getElementById('add-item-btn').addEventListener('click', addItemRow);
+    document.getElementById('add-sentence-btn').addEventListener('click', addSentenceRow);
+})();
+</script>
+
+{% endblock %}

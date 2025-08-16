@@ -9,12 +9,18 @@ from datetime import timedelta
 import auth
 import friends as friends_func
 
+from routers import itfd_creator
+
 app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), "static")
 app.mount("/data/friends_pages", StaticFiles(directory="data/friends_pages"), name="data/friends_pages")
 app.mount("/data/friends_pages/templates", StaticFiles(directory="data/friends_pages/templates"), name="data/friends_pages/templates")
-templates = Jinja2Templates("templates")
+
+templates = Jinja2Templates(directory="templates")
+
+
+app.include_router(itfd_creator.router)
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -66,7 +72,14 @@ async def sign_up(request: Request):
 
 
 @app.get("/you", response_class=HTMLResponse)
-async def you(request: Request, current_user: dict = Depends(auth.check_access_token)):
+async def you(request: Request,
+              current_user: dict = Depends(auth.check_access_token)):
+    if current_user["error"]:
+        response = RedirectResponse(url="/login", status_code=303)
+        response.delete_cookie("access_token")
+        response.delete_cookie("user_name")
+        return response
+
     friends_page = friends_func.search(current_user["user_name"])[0][1]
     return templates.TemplateResponse("you.html", {
         "request": request,
@@ -74,6 +87,7 @@ async def you(request: Request, current_user: dict = Depends(auth.check_access_t
         "user_name": current_user["user_name"],
         "friends_page": friends_page
     })
+
 
 @app.get("/dsgvo", response_class=HTMLResponse)
 async def dsgvo(request: Request, user_name: str = Cookie(default=None)):
@@ -210,6 +224,7 @@ async def friends_page(request: Request, name: str):
 def init():
     friends_func.init()
     auth.init()
+
 
 if __name__ == "__main__":
     init()

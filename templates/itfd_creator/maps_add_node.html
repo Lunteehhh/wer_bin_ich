@@ -1,0 +1,218 @@
+{% extends "itfd_creator/base_tools.html" %}
+
+{% block tools_content %}
+<h1>Add Node To {{ map_name }}</h1>
+
+<form id="node-form" method="post" action="/itfd-creator/maps/{{ map_name }}/add-node">
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required>
+    <br><br>
+
+    <label for="category">Category:</label>
+    <select id="category" name="category" required>
+        <option value="0">Normal</option>
+        <option value="1">Connected to another map</option>
+        <option value="2">Monster spawner</option>
+        <option value="3">Resource node</option>
+    </select>
+    <br><br>
+
+    <fieldset>
+        <legend>Connections</legend>
+        <div id="connections"></div>
+        <button type="button" id="addConnection">+ Add Connection</button>
+    </fieldset>
+    <br>
+
+    <fieldset>
+        <legend>Sentences First</legend>
+        <div id="sentences_first"></div>
+        <button type="button" id="addSentenceFirst">+ Add</button>
+    </fieldset>
+    <br>
+
+    <fieldset>
+        <legend>Sentences Last</legend>
+        <div id="sentences_last"></div>
+        <button type="button" id="addSentenceLast">+ Add</button>
+    </fieldset>
+    <br>
+
+    <fieldset>
+        <legend>Monsters</legend>
+        <div id="monsters"></div>
+        <button type="button" id="addMonster">+ Add</button>
+    </fieldset>
+    <br>
+
+    <fieldset>
+        <legend>Items</legend>
+        <div id="items"></div>
+        <button type="button" id="addItem">+ Add</button>
+    </fieldset>
+    <br>
+
+    <fieldset>
+        <legend>Commands</legend>
+        <div id="commands"></div>
+        <button type="button" id="addCommand">+ Add</button>
+    </fieldset>
+    <br>
+
+    <fieldset id="additional_data_fieldset" style="display:none;">
+        <legend>Additional Data</legend>
+        <div id="additional_data"></div>
+        <button type="button" id="addAdditional">+ Add Entrance</button>
+    </fieldset>
+
+    <br>
+    <button type="submit">Add Node</button>
+</form>
+
+<script>
+const possible_nodes = {{ possible_nodes | tojson | safe }};
+const possible_monsters = {{ possible_monsters | default([]) | tojson | safe }};
+const possible_items = {{ possible_items | default([]) | tojson | safe }};
+const current_map_name = "{{ map_name }}";
+
+function createDivWith(html) {
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    return container;
+}
+
+// --- Connections ---
+function addConnectionField() {
+    const container = document.createElement('div');
+
+    // Node select (nur aktuelle Map)
+    const nodeSelect = document.createElement('select');
+    nodeSelect.name = "connections_node_name[]";
+
+    if (possible_nodes[current_map_name]) {
+        possible_nodes[current_map_name].forEach(node => {
+            const opt = document.createElement("option");
+            opt.value = node;
+            opt.textContent = node;
+            nodeSelect.appendChild(opt);
+        });
+    } else {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "No nodes available";
+        nodeSelect.appendChild(opt);
+        nodeSelect.disabled = true;
+    }
+
+    container.append("Node: ", nodeSelect);
+    container.innerHTML += `
+        <label> Title: <input type="text" name="connections_title[]"></label>
+        <label> Permission: <input type="number" name="connections_permission[]"></label>
+        <button type="button" class="remove-btn">- Remove</button><br>`;
+    container.querySelector('.remove-btn').addEventListener('click', () => container.remove());
+
+    document.getElementById('connections').appendChild(container);
+}
+document.getElementById('addConnection').addEventListener('click', addConnectionField);
+
+// --- Generic list fields ---
+function addListField(containerId, name, type="text") {
+    const html = `
+        <input type="${type}" name="${name}[]">
+        <button type="button" class="remove-btn">- Remove</button>`;
+    const container = createDivWith(html);
+    container.querySelector('.remove-btn').addEventListener('click', () => container.remove());
+    document.getElementById(containerId).appendChild(container);
+}
+document.getElementById('addSentenceFirst').addEventListener('click', () => addListField('sentences_first', 'sentences_first'));
+document.getElementById('addSentenceLast').addEventListener('click', () => addListField('sentences_last', 'sentences_last'));
+document.getElementById('addCommand').addEventListener('click', () => addListField('commands', 'commands', 'number'));
+
+// --- Monsters ---
+function addMonsterField() {
+    const container = document.createElement('div');
+    if (!possible_monsters.length) {
+        container.innerHTML = `<select name="monsters[]" disabled>
+            <option value="">No monsters available</option></select>
+            <button type="button" class="remove-btn">- Remove</button><br>`;
+    } else {
+        const options = possible_monsters.map(m => `<option value="${m}">${m}</option>`).join('');
+        container.innerHTML = `<select name="monsters[]">
+            <option value="" selected disabled>Select monster</option>
+            ${options}</select>
+            <button type="button" class="remove-btn">- Remove</button><br>`;
+    }
+    container.querySelector('.remove-btn').addEventListener('click', () => container.remove());
+    document.getElementById('monsters').appendChild(container);
+}
+document.getElementById('addMonster').addEventListener('click', addMonsterField);
+
+// --- Items ---
+function addItemField() {
+    const container = document.createElement('div');
+    if (!possible_items.length) {
+        container.innerHTML = `<select name="items[]" disabled>
+            <option value="">No items available</option></select>
+            <button type="button" class="remove-btn">- Remove</button><br>`;
+    } else {
+        const options = possible_items.map(i => `<option value="${i[0]}">${i[0]}: ${i[1]}</option>`).join('');
+        container.innerHTML = `<select name="items[]">
+            <option value="" selected disabled>Select item</option>
+            ${options}</select>
+            <button type="button" class="remove-btn">- Remove</button><br>`;
+    }
+    container.querySelector('.remove-btn').addEventListener('click', () => container.remove());
+    document.getElementById('items').appendChild(container);
+}
+document.getElementById('addItem').addEventListener('click', addItemField);
+
+// --- Category-dependent Additional Data ---
+const categorySelect = document.getElementById('category');
+const additionalDataFieldset = document.getElementById('additional_data_fieldset');
+function updateAdditionalVisibility() {
+    additionalDataFieldset.style.display = categorySelect.value === '1' ? 'block' : 'none';
+}
+categorySelect.addEventListener('change', updateAdditionalVisibility);
+updateAdditionalVisibility();
+
+function addAdditionalField() {
+    const container = document.createElement('div');
+
+    // Map select
+    const mapSelect = document.createElement('select');
+    mapSelect.name = "additional_map_name[]";
+    for (const map in possible_nodes) {
+        const opt = document.createElement("option");
+        opt.value = map;
+        opt.textContent = map;
+        mapSelect.appendChild(opt);
+    }
+
+    // Node select
+    const nodeSelect = document.createElement('select');
+    nodeSelect.name = "additional_node_name[]";
+
+    function updateNodes(map) {
+        nodeSelect.innerHTML = "";
+        possible_nodes[map].forEach(node => {
+            const opt = document.createElement("option");
+            opt.value = node;
+            opt.textContent = node;
+            nodeSelect.appendChild(opt);
+        });
+    }
+    updateNodes(mapSelect.value);
+    mapSelect.addEventListener("change", () => updateNodes(mapSelect.value));
+
+    container.append("Map: ", mapSelect, " Node: ", nodeSelect);
+    container.innerHTML += `
+        <label> Title: <input type="text" name="additional_title[]"></label>
+        <label> Permission: <input type="number" name="additional_permission[]"></label>
+        <button type="button" class="remove-btn">- Remove</button><br>`;
+    container.querySelector('.remove-btn').addEventListener('click', () => container.remove());
+
+    document.getElementById('additional_data').appendChild(container);
+}
+document.getElementById('addAdditional').addEventListener('click', addAdditionalField);
+</script>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "itfd_creator/base_tools.html" %}
+
+{% block tools_content %}
+<h1>Edit Item</h1>
+
+<form id="item-form" method="post" action="/itfd-creator/edit-item/{{ item[0] }}">
+    <div>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" value="{{ item[1] }}" required>
+    </div>
+
+    <div>
+        <label for="category">Category:</label>
+        <select id="category" name="category" required>
+            <option value="-1" {% if item[2] == -1 %}selected{% endif %}>Quest Item</option>
+            <option value="0" {% if item[2] == 0 %}selected{% endif %}>Normal Item</option>
+            <option value="1" {% if item[2] == 1 %}selected{% endif %}>Weapon/Tools</option>
+            <option value="2" {% if item[2] == 2 %}selected{% endif %}>Utils</option>
+            <option value="10" {% if item[2] == 10 %}selected{% endif %}>Food</option>
+            <option value="11" {% if item[2] == 11 %}selected{% endif %}>Drink</option>
+            <option value="12" {% if item[2] == 12 %}selected{% endif %}>Potion</option>
+            <option value="20" {% if item[2] == 20 %}selected{% endif %}>Loot bag</option>
+        </select>
+    </div>
+
+    <!-- Platz für dynamische Felder -->
+    <div id="extra-fields"></div>
+
+    <button type="submit">Save Changes</button>
+</form>
+
+<script>
+document.getElementById('category').addEventListener('change', function() {
+    loadExtraFields(this.value);
+});
+
+function loadExtraFields(category) {
+    const extraFields = document.getElementById('extra-fields');
+    extraFields.innerHTML = '';
+
+    if (category === '0') {
+        extraFields.innerHTML = `
+            <div>
+                <label for="e">Command:</label>
+                <input type="number" id="e" name="e" value="{{ item[7] }}">
+            </div>
+        `;
+    } else if (category === '1') {
+        extraFields.innerHTML = `
+            <div>
+                <label for="a">Durability:</label>
+                <input type="number" id="a" name="a" value="{{ item[3] }}">
+            </div>
+            <div>
+                <label for="b">Damage:</label>
+                <input type="number" id="b" name="b" value="{{ item[4] }}">
+            </div>
+            <label for="c">Type:</label>
+            <select id="c" name="c">
+                <option value="0" {% if item[5] == 0 %}selected{% endif %}>Sword</option>
+                <option value="1" {% if item[5] == 1 %}selected{% endif %}>Bow</option>
+                <option value="2" {% if item[5] == 2 %}selected{% endif %}>Wand</option>
+            </select>
+            <div>
+                <label for="e">Command:</label>
+                <input type="number" id="e" name="e" value="{{ item[7] }}">
+            </div>
+        `;
+    }
+    // ... weitere Kategorien wie bei add_item.html ergänzen
+}
+
+// Beim Laden direkt die Felder der aktuellen Kategorie anzeigen
+loadExtraFields("{{ item[2] }}");
+</script>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "itfd_creator/base_tools.html" %}
+
+{% block tools_content %}
+<h1>Items</h1>
+
+
+<table border="1" cellpadding="8" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Health</th>
+            <th>Strength</th>
+            <th>Xp</th>
+            <th>Items</th>
+            <th>Sentences</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for monster in monsters %}
+        <tr>
+            <td>{{ monster[0] }}</td>
+            <td>{{ monster[1] }}</td>
+            <td>{{ monster[2] }}</td>
+            <td>{{ monster[3] }}</td>
+            <td>
+                <ul>
+                    {% for item in monster[4] %}
+                    <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </td>
+            <td>
+                <ul>
+                    {% for sentence in monster[5] %}
+                    <li>{{ sentence }}</li>
+                    {% endfor %}
+                </ul>
+            </td>
+            <td>
+                <!-- Edit Button -->
+                <form method="get" action="/itfd-creator/edit-monster/{{ monster[0] }}" style="display:inline;">
+                    <button type="submit">Edit</button>
+                </form>
+
+                <!-- Delete Button -->
+                <form method="post" action="/itfd-creator/delete-monster/{{ monster[0] }}" style="display:inline;">
+                    <button type="submit" onclick="return confirm('Are you sure you want to delete this monster?');">
+                        Delete
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="/itfd-creator/add-monster">Add Monster</a>
+
+{% endblock %}

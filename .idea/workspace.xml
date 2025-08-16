@@ -5,9 +5,28 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3ba46aa4-caa4-4339-9b4f-74f8b4b821ba" name="Changes" comment="Initial commit">
+      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/itfd_creator/utils.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/add_item.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/base_tools.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/edit_item.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/items_index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/maps_add.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/maps_add_node.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/maps_page.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/maps_show.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/monster_add.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/monster_edit.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/monster_index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/auth.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routers/itfd_creator.py" beforeDir="false" afterPath="$PROJECT_DIR$/routers/itfd_creator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/itfd_creator/items.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/itfd_creator/items.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/itfd_creator/maps.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/itfd_creator/maps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/itfd_creator/monsters.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/itfd_creator/monsters.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,13 +36,18 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="HTML File" />
         <option value="Python Script" />
+        <option value="HTML File" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
     <option name="PUSH_AUTO_UPDATE" value="true" />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="UPDATE_TYPE" value="REBASE" />
   </component>
@@ -57,9 +81,10 @@
     &quot;Python.friends.executor&quot;: &quot;Run&quot;,
     &quot;Python.main.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;itfd__creator&quot;,
     &quot;last_opened_file_path&quot;: &quot;/Users/lunte/PycharmProjects/wer_bin_ich/templates&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.intellij.pycharm.community.ide.impl.configuration.PythonContentEntriesConfigurable&quot;
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.sourceCode.Python&quot;
   }
 }</component>
   <component name="RecentsManager">
@@ -67,6 +92,7 @@
       <recent name="$PROJECT_DIR$/templates" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/core" />
       <recent name="$PROJECT_DIR$/data/friends_pages/empty_pages" />
       <recent name="$PROJECT_DIR$/data" />
       <recent name="$PROJECT_DIR$" />
@@ -248,7 +274,31 @@
       <option name="project" value="LOCAL" />
       <updated>1751223435288</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Initial commit">
+      <option name="closed" value="true" />
+      <created>1755159451651</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1755159451652</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Initial commit">
+      <option name="closed" value="true" />
+      <created>1755159704571</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1755159704571</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Initial commit">
+      <option name="closed" value="true" />
+      <created>1755160424784</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1755160424784</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">

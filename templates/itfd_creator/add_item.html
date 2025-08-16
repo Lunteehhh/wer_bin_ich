@@ -1,0 +1,156 @@
+{% extends "itfd_creator/base_tools.html" %}
+
+{% block tools_content %}
+<h1>Add Item</h1>
+
+<form id="item-form" method="post" action="/itfd-creator/add-item">
+    <div>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+    </div>
+
+    <div>
+        <label for="category">Category:</label>
+        <select id="category" name="category" required>
+            <option value="-1">Quest Item</option>
+            <option value="0">Normal Item</option>
+            <option value="1">Weapon/Tools</option>
+            <option value="2">Utils</option>
+            <option value="10">Food</option>
+            <option value="11">Drink</option>
+            <option value="12">Potion</option>
+            <option value="20">Loot bag</option>
+        </select>
+    </div>
+
+    <!-- Platz für dynamische Felder -->
+    <div id="extra-fields"></div>
+
+    <button type="submit">Add Item</button>
+</form>
+
+<script>
+document.getElementById('category').addEventListener('change', function() {
+    const extraFields = document.getElementById('extra-fields');
+    extraFields.innerHTML = ''; // alte Felder entfernen
+
+    if (this.value === '0') {
+        extraFields.innerHTML = `
+            <div>
+                <label for="e">Command:</label>
+                <input type="number" id="e" name="e" required>
+            </div>
+        `;
+    } else if (this.value === '1') {
+        extraFields.innerHTML = `
+            <div>
+                <label for="a">Durability:</label>
+                <input type="number" id="a" name="a" required>
+            </div>
+            <div>
+                <label for="b">Damage:</label>
+                <input type="number" id="b" name="b" required>
+            </div>
+            <label for="c">Type:</label>
+            <select id="c" name="c" required>
+                <option value="0">Sword</option>
+                <option value="1">Bow</option>
+                <option value="2">Want</option>
+            </select>
+            <div>
+                <label for="e">Command:</label>
+                <input type="number" id="e" name="e" required>
+            </div>
+        `;
+    } else if (this.value === '10') {
+        extraFields.innerHTML = `
+            <div>
+                <label for="a">Food Points:</label>
+                <input type="number" id="a" name="a" required>
+            </div>
+            <div>
+                <label for="b">Effect:</label>
+                <input type="number" id="b" name="b" required>
+            </div>
+            <div>
+                <label for="c">Effect A:</label>
+                <input type="number" id="c" name="c" required>
+            </div>
+            <div>
+                <label for="d">Effect D:</label>
+                <input type="number" id="d" name="d" required>
+            </div>
+            <div>
+                <label for="e">Command:</label>
+                <input type="number" id="e" name="e" required>
+            </div>
+        `;
+    } else if (this.value === '11') {
+        extraFields.innerHTML = `
+            <div>
+                <label for="a">Drink Points:</label>
+                <input type="number" id="a" name="a" required>
+            </div>
+            <div>
+                <label for="b">Effect:</label>
+                <input type="number" id="b" name="b" required>
+            </div>
+            <div>
+                <label for="c">Effect A:</label>
+                <input type="number" id="c" name="c" required>
+            </div>
+            <div>
+                <label for="d">Effect D:</label>
+                <input type="number" id="d" name="d" required>
+            </div>
+            <div>
+                <label for="e">Command:</label>
+                <input type="number" id="e" name="e" required>
+            </div>
+        `;
+    } else if (this.value === '12') {
+        extraFields.innerHTML = `
+            <div>
+                <label for="a">Duration:</label>
+                <input type="number" id="a" name="a" required>
+            </div>
+            <div>
+                <label for="b">Effect:</label>
+                <input type="number" id="b" name="b" required>
+            </div>
+            <div>
+                <label for="c">Effect A:</label>
+                <input type="number" id="c" name="c" required>
+            </div>
+            <div>
+                <label for="d">Effect B:</label>
+                <input type="number" id="d" name="d" required>
+            </div>
+            <div>
+                <label for="e">Command:</label>
+                <input type="number" id="e" name="e" required>
+            </div>
+        `;
+    } else if (this.value === '20') {
+        extraFields.innerHTML = `
+            <div>
+                <label for="a">Luck Num:</label>
+                <input type="number" id="a" name="a" required>
+            </div>
+            <div>
+                <label for="b">Items Count:</label>
+                <input type="number" id="b" name="b" required>
+            </div>
+            <div>
+                <label for="c">100% Drop Chance:</label>
+                <input type="checkbox" id="c" name="c" required>
+            </div>
+            <div>
+                <label for="d">Effect D:</label>
+                <input type="number" id="d" name="d" required>
+            </div>
+        `;
+    }
+});
+</script>
+{% endblock %}

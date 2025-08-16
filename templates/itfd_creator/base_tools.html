@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="tools-container">
+    <nav class="toolbar">
+        <ul>
+            <li class="menu-item">
+                <a href="/itfd-creator/items">Items</a>
+            </li>
+            <li class="menu-item">
+                <a href="/itfd-creator/monsters">Monsters</a>
+            </li>
+            <li class="menu-item">
+                <a href="/itfd-creator/maps">Maps</a>
+            </li>
+        </ul>
+    </nav>
+
+    {% block tools_content %}{% endblock %}
+</div>
+{% endblock %}
