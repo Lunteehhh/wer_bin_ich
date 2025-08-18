@@ -1,9 +1,9 @@
 {% extends "itfd_creator/base_tools.html" %}
 
 {% block tools_content %}
-<h1>Add Item</h1>
+<h1>Add Map</h1>
 
-<form id="map-form" method="post" action="/itfd-creator/add-map">
+<form id="map-form" method="post" action="/itfd-creator/pack/{{ pack }}/add-map">
     <label for="name">Name:</label>
     <input type="text" id="name" name="name" required>
 

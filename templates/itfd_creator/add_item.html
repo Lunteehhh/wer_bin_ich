@@ -3,7 +3,7 @@
 {% block tools_content %}
 <h1>Add Item</h1>
 
-<form id="item-form" method="post" action="/itfd-creator/add-item">
+<form id="item-form" method="post" action="/itfd-creator/pack/{{ pack }}/add-item">
     <div>
         <label for="name">Name:</label>
         <input type="text" id="name" name="name" required>

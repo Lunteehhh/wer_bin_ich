@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div>
+    <h1>Packs</h1>
+
+    <table border="1" cellpadding="8" cellspacing="0">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Data</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for pack_name in packs %}
+        <tr>
+            <td>
+                <a href="/itfd-creator/packs/{{ pack_name }}">{{ pack_name }}</a>
+            </td>
+            <td>Date not available..</td>
+            <td>
+                <form method="post" action="/itfd-creator/delete-pack/{{ pack_name}}" style="display:inline;">
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="/itfd-creator/new-pack">Create Pack</a>
+</div>
+
+{% endblock %}

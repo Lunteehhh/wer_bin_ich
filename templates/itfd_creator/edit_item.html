@@ -3,7 +3,7 @@
 {% block tools_content %}
 <h1>Edit Item</h1>
 
-<form id="item-form" method="post" action="/itfd-creator/edit-item/{{ item[0] }}">
+<form id="item-form" method="post" action="/itfd-creator/pack/{{ pack }}/edit-item/{{ item[0] }}">
     <div>
         <label for="name">Name:</label>
         <input type="text" id="name" name="name" value="{{ item[1] }}" required>

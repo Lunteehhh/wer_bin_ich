@@ -3,7 +3,7 @@
 {% block tools_content %}
 <h1>Edit Monster</h1>
 
-<form id="monster-form" method="post" action="/itfd-creator/edit-monster/{{monster[0]}}">
+<form id="monster-form" method="post" action="/itfd-creator/pack/{{ pack }}/edit-monster/{{monster[0]}}">
     <h2>Monster bearbeiten</h2>
 
     <div>
@@ -33,9 +33,16 @@
         <legend>Items:</legend>
         <div id="items-list">
             {% for item in monster[4] %}
-            <div>
-                <input type="number" name="items" min="0" step="1" value="{{ item }}" required>
-                <button type="button" class="remove-btn">✕</button>
+            <div class="item-row">
+                <select name="items" required>
+                    <option value="" disabled>-- Select Item --</option>
+                    {% for i in possible_items %}
+                        <option value="{{ i[0] }}" {% if i[0] == item %}selected{% endif %}>
+                            {{ i[0] }}: {{ i[1] }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <button type="button" class="remove-btn" aria-label="Item entfernen">✕</button>
             </div>
             {% endfor %}
         </div>
@@ -49,9 +56,9 @@
         <legend>Sentences:</legend>
         <div id="sentences-list">
             {% for sentence in monster[5] %}
-            <div>
+            <div class="sentence-row">
                 <input type="text" name="sentences" value="{{ sentence }}" required>
-                <button type="button" class="remove-btn">✕</button>
+                <button type="button" class="remove-btn" aria-label="Satz entfernen">✕</button>
             </div>
             {% endfor %}
         </div>
@@ -65,58 +72,68 @@
 
 <!-- Templates für neue Zeilen -->
 <template id="item-row-tpl">
-    <div>
-        <input type="number" name="items" min="0" step="1" placeholder="Item-ID" required>
-        <button type="button" class="remove-btn">✕</button>
+    <div class="item-row">
+        <select name="items" required></select>
+        <button type="button" class="remove-btn" aria-label="Item entfernen">✕</button>
     </div>
 </template>
 
 <template id="sentence-row-tpl">
-    <div>
+    <div class="sentence-row">
         <input type="text" name="sentences" placeholder="Satz" required>
-        <button type="button" class="remove-btn">✕</button>
+        <button type="button" class="remove-btn" aria-label="Satz entfernen">✕</button>
     </div>
 </template>
 
 <script>
 (function() {
+    const possible_items = {{ possible_items | default([]) | tojson | safe }};
+
     const itemsList = document.getElementById('items-list');
     const sentencesList = document.getElementById('sentences-list');
     const itemTpl = document.getElementById('item-row-tpl');
     const sentenceTpl = document.getElementById('sentence-row-tpl');
 
-    function addRemoveHandler(button, listEl, rowEl) {
-        button.addEventListener('click', () => {
-            listEl.removeChild(rowEl);
-        });
+    function fillSelect(select) {
+        if (possible_items.length) {
+            select.innerHTML = `
+                <option value="" disabled selected>-- Select Item --</option>
+                ${possible_items.map(i => `<option value="${i[0]}">${i[0]}: ${i[1]}</option>`).join('')}
+            `;
+        } else {
+            select.innerHTML = `<option value="">No items available</option>`;
+            select.disabled = true;
+        }
     }
 
-    function addRow(listEl, tplEl) {
-        const node = tplEl.content.firstElementChild.cloneNode(true);
-        addRemoveHandler(node.querySelector('.remove-btn'), listEl, node);
-        listEl.appendChild(node);
+    function addItemRow() {
+        const node = itemTpl.content.firstElementChild.cloneNode(true);
+        fillSelect(node.querySelector('select'));
+        itemsList.appendChild(node);
     }
 
-    // Event-Listener für schon vorhandene Zeilen setzen
-    document.querySelectorAll('#items-list .remove-btn').forEach(btn => {
-        addRemoveHandler(btn, itemsList, btn.parentElement);
-    });
-    document.querySelectorAll('#sentences-list .remove-btn').forEach(btn => {
-        addRemoveHandler(btn, sentencesList, btn.parentElement);
+    function addSentenceRow() {
+        const node = sentenceTpl.content.firstElementChild.cloneNode(true);
+        sentencesList.appendChild(node);
+    }
+
+    // Event Delegation: funktioniert für vorhandene & neue Zeilen
+    itemsList.addEventListener('click', (e) => {
+        const btn = e.target.closest('.remove-btn');
+        if (!btn) return;
+        const row = btn.closest('.item-row');
+        if (row && itemsList.contains(row)) row.remove();
     });
 
-    // Buttons für neue Zeilen
-    document.getElementById('add-item-btn').addEventListener('click', () => {
-        addRow(itemsList, itemTpl);
+    sentencesList.addEventListener('click', (e) => {
+        const btn = e.target.closest('.remove-btn');
+        if (!btn) return;
+        const row = btn.closest('.sentence-row');
+        if (row && sentencesList.contains(row)) row.remove();
     });
 
-    document.getElementById('add-sentence-btn').addEventListener('click', () => {
-        addRow(sentencesList, sentenceTpl);
-    });
-
-    // Falls keine Zeilen existieren, eine neue hinzufügen
-    if(itemsList.children.length === 0) addRow(itemsList, itemTpl);
-    if(sentencesList.children.length === 0) addRow(sentencesList, sentenceTpl);
+    document.getElementById('add-item-btn').addEventListener('click', addItemRow);
+    document.getElementById('add-sentence-btn').addEventListener('click', addSentenceRow);
 })();
 </script>
 {% endblock %}

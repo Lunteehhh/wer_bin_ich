@@ -5,28 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3ba46aa4-caa4-4339-9b4f-74f8b4b821ba" name="Changes" comment="Initial commit">
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/itfd_creator/utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/add_item.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/base_tools.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/edit_item.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/index.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/items_index.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/maps_add.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/maps_add_node.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/maps_page.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/maps_show.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/monster_add.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/monster_edit.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/monster_index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/maps_edit_node.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/pack_new.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/itfd_creator/pack_select.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/auth.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/routers/itfd_creator.py" beforeDir="false" afterPath="$PROJECT_DIR$/routers/itfd_creator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/itfd_creator/items.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/itfd_creator/items.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/services/itfd_creator/maps.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/itfd_creator/maps.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/itfd_creator/monsters.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/itfd_creator/monsters.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/itfd_creator/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/itfd_creator/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/itfd_creator/add_item.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/itfd_creator/add_item.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/itfd_creator/base_tools.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/itfd_creator/base_tools.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/itfd_creator/edit_item.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/itfd_creator/edit_item.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/itfd_creator/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/itfd_creator/pack_index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/itfd_creator/items_index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/itfd_creator/items_index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/itfd_creator/maps_add.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/itfd_creator/maps_add.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/itfd_creator/maps_add_node.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/itfd_creator/maps_add_node.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/itfd_creator/maps_show.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/itfd_creator/maps_show.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/itfd_creator/monster_add.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/itfd_creator/monster_add.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/itfd_creator/monster_edit.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/itfd_creator/monster_edit.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/itfd_creator/monster_index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/itfd_creator/monster_index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -298,7 +295,15 @@
       <option name="project" value="LOCAL" />
       <updated>1755160424784</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="Initial commit">
+      <option name="closed" value="true" />
+      <created>1755370227659</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1755370227659</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">

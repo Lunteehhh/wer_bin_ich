@@ -12,6 +12,7 @@ Node Categories
 3: Resource node
 """
 
+
 @dataclass(slots=True)
 class Node:
 	name: str
@@ -135,6 +136,22 @@ def get(user: str,
 	return [_node_from_db(*node) for node in results]
 
 
+def get_node(user: str,
+			 pack_name: str,
+			 map_name: str,
+			 node_name: str):
+	path = f"data/users/{user}/itfd_creator/{pack_name}.db"
+	with sqlite3.connect(path) as conn:
+		cursor = conn.cursor()
+
+		cursor.execute(f"SELECT * FROM map_{map_name} WHERE name = ?",
+					   (node_name,))
+
+		result = cursor.fetchone()
+
+	return _node_from_db(*result)
+
+
 def add(user: str,
 		pack_name: str,
 		map_name: str):
@@ -233,6 +250,294 @@ def add_node(user: str,
 			conn.commit()
 
 
+def edit_node(user: str,
+			  pack_name: str,
+			  map_name: str,
+              node_name: str,
+              new_node_name: str | None = None,
+              category: int | None = None,
+              connections: list[[str, str, int]] | None = None,
+              sentences_first: list[str] | None = None,
+              sentences_last: list[str] | None = None,
+              monsters: list[str] | None = None,
+              items: list[int] | None = None,
+              commands: list[int] | None = None,
+              additional_data: any = None):
+	def change_linkage_node_name():
+		nonlocal cursor, map_name, node_name, new_node_name
+
+		cursor.execute("SELECT monsters, items, connections, "
+					   f"additional_data, category FROM map_{map_name}"
+					   " WHERE name = ?",
+					   (node_name,))
+
+		result = cursor.fetchone()
+
+		fetched_monsters = result[0]
+		if fetched_monsters:
+			fetched_monsters = set(fetched_monsters.split(";"))
+			for _monster in fetched_monsters:
+				cursor.execute(f"UPDATE _monster_{_monster} "
+							   f"SET node = ?"
+							   f"WHERE map = ? AND node = ?",
+							   (new_node_name, map_name, node_name))
+
+		fetched_items = result[1]
+		if fetched_items:
+			items = set(fetched_items.split(";"))
+			for _item in items:
+				cursor.execute(f"UPDATE _item_{_item}_map "
+							   f"SET node = ?"
+							   f"WHERE map = ? AND node = ?",
+							   (new_node_name, map_name, node_name))
+
+		fetched_conns = result[2]
+		if fetched_conns:
+			fetched_conns = _convert_string_to_connections(fetched_conns)
+			for node, _, _ in fetched_conns:
+				cursor.execute(f"UPDATE _map_{map_name}_{node} "
+							   f"SET node = ?"
+							   f"WHERE map = ? AND node = ?",
+							   (new_node_name, map_name, node_name))
+
+		_cat, _entrances = result[2:4]
+		if _cat == 2:
+			for _entr in _entrances:
+				cursor.execute(f"UPDATE _map_{_entr[0]}_{_entr[1]} "
+							   f"SET node = ?"
+							   f"WHERE map = ? AND node = ?",
+							   (new_node_name, map_name, node_name))
+
+	def change_linkage_node_name_monsters():
+		nonlocal cursor, map_name, node_name, new_node_name
+
+		cursor.execute(f"SELECT monsters FROM map_{map_name} "
+					   f"WHERE name = ?", (node_name,))
+
+		fetched_monsters, = cursor.fetchone()
+		if fetched_monsters:
+			fetched_monsters = set(fetched_monsters.split(";"))
+
+			for _monster in monsters:
+				cursor.execute(f"UPDATE _monster_{_monster} "
+							   f"SET node = ?"
+							   f"WHERE map = ? AND node = ?",
+							   (new_node_name, map_name, node_name))
+
+	def change_linkage_node_name_items():
+		nonlocal cursor, map_name, node_name, new_node_name
+
+		cursor.execute(f"SELECT items FROM map_{map_name} "
+					   f"WHERE name = ?",
+					   (node_name,))
+
+		fetched_items, = cursor.fetchone()
+		if fetched_items:
+			fetched_items = set(fetched_items.split(";"))
+
+			for _item in fetched_items:
+				cursor.execute(f"UPDATE _item_{_item}_map "
+							   f"SET node = ?"
+							   f"WHERE map = ? AND node = ?",
+							   (new_node_name, map_name, node_name))
+
+	def update_linkage_monster():
+		nonlocal cursor, map_name, node_name, new_node_name, monsters
+
+		cursor.execute(f"SELECT monsters FROM map_{map_name} WHERE "
+					   f"name = ?", (node_name,))
+
+		fetched_monsters, = cursor.fetchone()
+		if fetched_monsters:
+			fetched_monsters = set(fetched_monsters.split(";"))
+			for monster_name in fetched_monsters:
+				cursor.execute(f"DELETE FROM _monster_{monster_name} "
+							   "WHERE map = ? AND node = ?",
+							   (map_name, node_name))
+
+		counted_monsters = Counter(monsters)
+		for _monster, count in counted_monsters.items():
+			cursor.execute(f"INSERT INTO _monster_{_monster}"
+						   f"(map, node, count)"
+						   f"VALUES(?, ?, ?)",
+						   (map_name, node_name, count))
+
+	def update_linkage_item(_items: list[int]):
+		nonlocal cursor, map_name, node_name, new_node_name, items
+		cursor.execute(f"SELECT items FROM map_{map_name} WHERE name = ?",
+					   (node_name,))
+
+		fetched_items = cursor.fetchone()
+		if fetched_items:
+			fetched_items = set(fetched_items[0].split(";"))
+
+			for item_id in fetched_items:
+				cursor.execute(f"DELETE FROM _item_{item_id}_map "
+							   f"WHERE map = ? AND node = ?",
+							   (map_name, node_name))
+
+		counted_items = Counter(items)
+		for item_id, count in counted_items.items():
+			cursor.execute(f"INSERT INTO _item_{item_id}_map"
+						   f"(map, node, count)"
+						   f"VALUES (?, ?, ?)",
+						   (map_name, new_node_name, count))
+
+	values = []
+	path = f"data/users/{user}/itfd_creator/{pack_name}.db"
+	with sqlite3.connect(path) as conn:
+		cursor = conn.cursor()
+
+		if new_node_name:
+			if not monsters and not items:
+				change_linkage_node_name()
+			elif not monsters:
+				change_linkage_node_name_monsters()
+			elif not items:
+				change_linkage_node_name_items()
+
+			values.append(f"name = '{new_node_name}'")
+		if category:
+			values.append(f"category = {category}")
+		if connections:
+			connections: str = _convert_connections_to_string(connections)
+			values.append(f"connections = '{connections}'")
+		if sentences_first:
+			sentences_first: str = "\n".join(sentences_first)
+			values.append(f"sentences_first = '{sentences_first}'")
+		if sentences_last:
+			sentences_last: str = "\n".join(sentences_last)
+			values.append(f"sentences_last = '{sentences_last}'")
+		if monsters:
+			update_linkage_monster()
+
+			monsters: str = ";".join(monsters)
+			values.append(f"monsters = '{monsters}'")
+		if items:
+			update_linkage_item(items)
+
+			items: str = ";".join(map(str, items))
+			values.append(f"items = '{items}'")
+		if commands:
+			commands: str = ";".join(map(str, commands))
+			values.append(f"commands = '{commands}'")
+
+		if additional_data:
+			if category:
+				cat = category
+			else:
+				cursor.execute(f"SELECT category FROM map_{map_name}"
+							   f"WHERE name = ?", node_name)
+				cat = cursor.fetchone()[0]
+
+			match cat:
+				case 1:
+					entrances = _convert_entrances_to_string(additional_data)
+					values.append(f"additional_data = '{entrances}'")
+				case _:
+					raise ValueError(f"Node cat {cat} has no additional data")
+
+		cursor.execute(f"UPDATE map_{map_name} "
+					   f"SET {",".join(values)} "
+					   f"WHERE name = ?", (node_name,))
+		conn.commit()
+
+
+def delete_node(user: str,
+			  	pack_name: str,
+			  	map_name: str,
+              	node_name: str):
+	path = f"data/users/{user}/itfd_creator/{pack_name}.db"
+	with sqlite3.connect(path) as conn:
+		cursor = conn.cursor()
+
+		# update items and monster linkage
+		cursor.execute(f"SELECT monsters, items FROM map_{map_name}"
+					   " WHERE name = ?",
+					   (node_name,))
+
+		monsters, items = cursor.fetchone()
+
+		if monsters:
+			monsters = set(monsters.split(";"))
+			for monster_name in monsters:
+				cursor.execute(f"DELETE FROM _monster_{monster_name}"
+							   " WHERE map = ? AND node = ?",
+							   (map_name, node_name))
+
+		if items:
+			items = set(items.split(";"))
+			for item_id in items:
+				cursor.execute(f"DELETE FROM _item_{item_id}_map "
+							   f"WHERE map = ? AND node = ?",
+							   (map_name, node_name))
+
+		# update connections and entrances
+		cursor.execute(f"SELECT * FROM _map_{map_name}_{node_name}")
+		results = cursor.fetchall()
+
+		for linked_by_map, linked_by_node in results:
+			if linked_by_map == map_name:
+				cursor.execute(f"SELECT connections "
+							   f"FROM map_{linked_by_map}"
+							   " WHERE name = ?", (linked_by_node,))
+				connections = cursor.fetchone()
+
+				connections = _convert_string_to_connections(connections)
+				connections = [
+					node for node in connections if node[0] != node_name
+				]
+				connections = _convert_connections_to_string(connections)
+
+				cursor.execute(f"UPDATE map_{linked_by_map} "
+							   f"SET connections = ?"
+							   " WHERE name = ?",
+							   (connections, linked_by_node))
+
+			else:
+				cursor.execute(f"SELECT additional_data "
+							   f"FROM map_{linked_by_map}"
+							   " WHERE name = ?", (linked_by_node,))
+				entrances = cursor.fetchone()
+
+				entrances = _convert_string_to_entrances(entrances)
+				entrances = [
+					ent for ent in entrances
+					if ent[0] != linked_by_map and ent[1] != linked_by_node
+				]
+				entrances = _convert_entrances_to_string(entrances)
+
+				cursor.execute(f"UPDATE map_{linked_by_map}"
+							   " SET additional_data = ?"
+							   " WHERE name = ?",
+							   (entrances, linked_by_node))
+
+		# delete main
+		cursor.execute(f"DELETE FROM map_{map_name} "
+					   f"WHERE name = ?", (node_name,))
+
+		cursor.execute(f"SELECT name, connections FROM map_{map_name}")
+		results = cursor.fetchall()
+
+		for node_name, node_data in results:
+			nodes = _convert_string_to_connections(node_data)
+
+			without_deleted_node = filter(
+				lambda a: False if a[0] == node_name else True,
+				nodes
+			)
+
+			if len(nodes) != len(without_deleted_node):
+				new_connections = _convert_connections_to_string(
+					without_deleted_node
+				)
+				cursor.execute(f"UPDATE map_{map_name}"
+							   f"SET connections = ?"
+							   f"WHERE name = ?", (new_connections, node_name))
+
+		conn.commit()
+
+
 def possible_nodes(user: str,
 				   pack_name: str) -> dict:
 	possible_nodes_dict = {}
@@ -249,6 +554,3 @@ def possible_nodes(user: str,
 			possible_nodes_dict[map_name] = [name for name, in node_names]
 
 	return possible_nodes_dict
-
-
-

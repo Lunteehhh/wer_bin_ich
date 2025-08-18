@@ -1,5 +1,6 @@
 import sqlite3
 from pathlib import Path
+import os
 
 
 def get_packs(user: str) -> list[str]:
@@ -36,3 +37,9 @@ def add_new_pack(user: str, pack_name: str):
 
         cursor.execute("CREATE TABLE IF NOT EXISTS maps("
                        "    name TEXT PRIMARY KEY)")
+
+
+def delete_pack(user: str, pack_name: str):
+    path = f"data/users/{user}/itfd_creator/{pack_name}.db"
+
+    os.remove(path)
