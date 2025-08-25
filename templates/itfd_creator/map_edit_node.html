@@ -1,0 +1,508 @@
+{% extends "itfd_creator/base_tools.html" %}
+
+{% block tools_content %}
+<h1>Edit Node {{ node_data.name }} ({{ map_name }})</h1>
+
+<form id="node-form" method="post" action="/itfd-creator/packs/{{ pack }}/maps/{{ map_name }}/edit-node/{{ node_data.name }}">
+	<label for="name">Name:</label>
+	<input type="text" id="name" name="name" value="{{ node_data.name }}" required>
+	<br><br>
+
+	<label for="category">Category:</label>
+	<select id="category" name="category" required>
+		<option value="0" {% if node_data.category == 0 %}selected{% endif %}>Normal</option>
+		<option value="1" {% if node_data.category == 1 %}selected{% endif %}>Connected to another map</option>
+		<option value="2" {% if node_data.category == 2 %}selected{% endif %}>Monster spawner</option>
+		<option value="3" {% if node_data.category == 3 %}selected{% endif %}>Resource node</option>
+	</select>
+	<br><br>
+
+	<!-- Connections -->
+	<fieldset>
+		<legend>Connections</legend>
+		<div id="connections" style="display:flex; gap:10px; flex-wrap:wrap;">
+			{% for c in node_data.connections %}
+			<div>
+				<label>Node:
+					<select name="connections_node_name[]">
+						{% for n in possible_nodes[map_name] %}
+						<option value="{{ n }}" {% if n == c.node_name %}selected{% endif %}>{{ n }}</option>
+						{% endfor %}
+					</select>
+				</label>
+				<label>Title: <input type="text" name="connections_title[]" value="{{ c.title }}" required></label>
+				<label>Permission:
+					<select name="connections_permission[]">
+						{% for key, val in possible_permissions.items() %}
+						<option value="{{ key }}" {% if key == c.permission %}selected{% endif %}>{{ val }}</option>
+						{% endfor %}
+					</select>
+				</label>
+				<button type="button" class="remove-btn">- Remove</button>
+			</div>
+			{% endfor %}
+		</div>
+		<button type="button" id="addConnection">+ Add Connection</button>
+	</fieldset>
+	<br>
+
+	<!-- Sentences First -->
+	<fieldset>
+		<legend>Sentences First</legend>
+		<div id="sentences_first">
+			{% for s in node_data.sentences_first %}
+			<div>
+				<input type="text" name="sentences_first[]" value="{{ s }}">
+				<button type="button" class="remove-btn">- Remove</button>
+			</div>
+			{% endfor %}
+		</div>
+		<button type="button" id="addSentenceFirst">+ Add</button>
+	</fieldset>
+	<br>
+
+	<!-- Sentences Last -->
+	<fieldset>
+		<legend>Sentences Last</legend>
+		<div id="sentences_last">
+			{% for s in node_data.sentences_last %}
+			<div>
+				<input type="text" name="sentences_last[]" value="{{ s }}">
+				<button type="button" class="remove-btn">- Remove</button>
+			</div>
+			{% endfor %}
+		</div>
+		<button type="button" id="addSentenceLast">+ Add</button>
+	</fieldset>
+	<br>
+
+	<!-- Monsters -->
+	<fieldset>
+		<legend>Monsters</legend>
+		<div id="monsters">
+			{% for m in node_data.monsters %}
+			<div>
+				<select name="monsters[]">
+					<option value="" disabled>Select monster</option>
+					{% for pm in possible_monsters %}
+					<option value="{{ pm }}" {% if pm == m %}selected{% endif %}>{{ pm }}</option>
+					{% endfor %}
+				</select>
+				<button type="button" class="remove-btn">- Remove</button>
+			</div>
+			{% endfor %}
+		</div>
+		<button type="button" id="addMonster">+ Add</button>
+	</fieldset>
+	<br>
+
+	<!-- Items -->
+	<fieldset>
+		<legend>Items</legend>
+		<div id="items">
+			{% for i in node_data.items %}
+			<div>
+				<select name="items[]">
+					<option value="" disabled>Select item</option>
+					{% for pi in possible_items %}
+					<option value="{{ pi[0] }}" {% if pi[0] == i %}selected{% endif %}>{{ pi[0] }}: {{ pi[1] }}</option>
+					{% endfor %}
+				</select>
+				<button type="button" class="remove-btn">- Remove</button>
+			</div>
+			{% endfor %}
+		</div>
+		<button type="button" id="addItem">+ Add</button>
+	</fieldset>
+	<br>
+
+	<!-- Commands -->
+	<fieldset>
+		<legend>Commands</legend>
+		<div id="commands">
+			{% for cmd in node_data.commands %}
+			<div>
+				<select name="commands[]">
+					{% for key, val in possible_commands.items() %}
+					<option value="{{ key }}" {% if key == cmd %}selected{% endif %}>{{ val }}</option>
+					{% endfor %}
+				</select>
+				<button type="button" class="remove-btn">- Remove</button>
+			</div>
+			{% endfor %}
+		</div>
+		<button type="button" id="addCommand">+ Add</button>
+	</fieldset>
+	<br>
+
+	<!-- Additional Data / Entrances -->
+	<fieldset id="additional_data_fieldset" style="{% if node_data.category == 1 %}display:flex; gap:10px; flex-wrap:wrap;{% else %}display:none;{% endif %}">
+		<legend>Entrances</legend>
+		<div id="additional_data" style="display:flex; gap:10px; flex-wrap:wrap;">
+			{% if node_data.additional %}
+			{% for a in node_data.additional %}
+			<div>
+				<select name="additional_map_name[]">
+					{% for map in possible_nodes %}
+					<option value="{{ map }}" {% if map == a.map_name %}selected{% endif %}>{{ map }}</option>
+					{% endfor %}
+				</select>
+				<select name="additional_node_name[]">
+					{% for n in possible_nodes[a.map_name] %}
+					<option value="{{ n }}" {% if n == a.node_name %}selected{% endif %}>{{ n }}</option>
+					{% endfor %}
+				</select>
+				<label>Title: <input type="text" name="additional_title[]" value="{{ a.title }}" required></label>
+				<label>Permission:
+					<select name="additional_permission[]">
+						{% for key, val in possible_permissions.items() %}
+						<option value="{{ key }}" {% if key == a.permission %}selected{% endif %}>{{ val }}</option>
+						{% endfor %}
+					</select>
+				</label>
+				<button type="button" class="remove-btn">- Remove</button>
+			</div>
+			{% endfor %}
+			{% endif %}
+		</div>
+		<button type="button" id="addAdditional">+ Add Entrance</button>
+	</fieldset>
+	<br>
+
+	<button type="submit">Save Node</button>
+</form>
+
+<script>
+    const possibleNodes = {{ possible_nodes | tojson | safe }};
+    const possibleMonsters = {{ possible_monsters | default([]) | tojson | safe }};
+    const possibleItems = {{ possible_items | default([]) | tojson | safe }};
+    const possiblePermissions = {{ possible_permissions | tojson | safe }};
+    const possibleCommands = {{ possible_commands | tojson | safe }};
+    const currentMapName = "{{ map_name }}";
+
+    // store of used titles (connections + additional)
+    const usedTitles = new Set();
+
+    // --- helpers ---
+    function removeContainerAndCleanupTitles(container) {
+        // if connection title present, remove old value from set
+        const conn = container.querySelector('input[name="connections_title[]"]');
+        if (conn) {
+            const old = conn.getAttribute('data-old') || conn.value;
+            if (old) usedTitles.delete(old);
+        }
+        // if additional title present, remove old value
+        const add = container.querySelector('input[name="additional_title[]"]');
+        if (add) {
+            const old = add.getAttribute('data-old') || add.value;
+            if (old) usedTitles.delete(old);
+        }
+        container.remove();
+    }
+
+    function watchTitle(input) {
+        // normalize initial value and register in set (keep first occurrence)
+        const initial = (input.value || "").trim();
+        if (initial) {
+            if (usedTitles.has(initial)) {
+                // duplicate at load -> clear this one
+                input.value = "";
+                input.setAttribute('data-old', "");
+            } else {
+                usedTitles.add(initial);
+                input.setAttribute('data-old', initial);
+            }
+        } else {
+            input.setAttribute('data-old', "");
+        }
+
+        // track old value in closure
+        let oldValue = input.getAttribute('data-old') || "";
+
+        input.addEventListener('input', (ev) => {
+            const newValue = (input.value || "").trim();
+
+            if (newValue === oldValue) return;
+
+            if (newValue && usedTitles.has(newValue) && newValue !== oldValue) {
+                // illegal - someone else already uses it
+                alert("This title is already used. Please choose another title.");
+                // revert to oldValue
+                input.value = oldValue;
+                // put caret at end
+                try { input.setSelectionRange(input.value.length, input.value.length); } catch (e) {}
+                return;
+            }
+
+            // update set
+            if (oldValue) usedTitles.delete(oldValue);
+            if (newValue) usedTitles.add(newValue);
+
+            oldValue = newValue;
+            input.setAttribute('data-old', newValue);
+        });
+    }
+
+    function buildNodeOptionsFor(nodeSel, mapName, selectedNode) {
+        nodeSel.innerHTML = "";
+        const list = possibleNodes[mapName] || [];
+        list.forEach(n => {
+            const opt = document.createElement('option');
+            opt.value = n;
+            opt.textContent = n;
+            nodeSel.appendChild(opt);
+        });
+        if (selectedNode) {
+            const found = Array.from(nodeSel.options).find(o => o.value === selectedNode);
+            if (found) nodeSel.value = selectedNode;
+        }
+    }
+
+    // Initialize preloaded inputs and attach listeners
+    function initPreloaded() {
+        // 1) watch existing connection titles
+        document.querySelectorAll('input[name="connections_title[]"]').forEach(inp => {
+            watchTitle(inp);
+        });
+
+        // 2) watch existing additional (entrance) titles
+        document.querySelectorAll('input[name="additional_title[]"]').forEach(inp => {
+            watchTitle(inp);
+        });
+
+        // 3) ensure preloaded additional map->node pairs react to changes
+        document.querySelectorAll('select[name="additional_map_name[]"]').forEach(mapSel => {
+            // find corresponding node select in same container
+            const container = mapSel.closest('div');
+            if (!container) return;
+            const nodeSel = container.querySelector('select[name="additional_node_name[]"]');
+            if (!nodeSel) return;
+            const currentNode = nodeSel.value;
+            // rebuild options for the current map and keep selected node if possible
+            buildNodeOptionsFor(nodeSel, mapSel.value, currentNode);
+            // attach change listener
+            mapSel.addEventListener('change', () => buildNodeOptionsFor(nodeSel, mapSel.value, null));
+        });
+
+        // 4) attach remove behavior to any existing .remove-btn
+        document.querySelectorAll('.remove-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const container = e.target.parentElement;
+                removeContainerAndCleanupTitles(container);
+            });
+        });
+    }
+
+    // Add helpers for creating dynamic fields
+
+    function addConnectionField(selectedNode = "", selectedPermission = "", selectedTitle = "") {
+        const div = document.createElement('div');
+
+        const nodeSel = document.createElement('select');
+        nodeSel.name = "connections_node_name[]";
+        (possibleNodes[currentMapName] || []).forEach(n => {
+            const opt = document.createElement('option');
+            opt.value = n;
+            opt.textContent = n;
+            if (n === selectedNode) opt.selected = true;
+            nodeSel.appendChild(opt);
+        });
+
+        const titleInput = document.createElement('input');
+        titleInput.type = "text";
+        titleInput.name = "connections_title[]";
+        titleInput.required = true;
+        titleInput.value = selectedTitle || "";
+
+        const permSel = document.createElement('select');
+        permSel.name = "connections_permission[]";
+        for (const key in possiblePermissions) {
+            const opt = document.createElement('option');
+            opt.value = key;
+            opt.textContent = possiblePermissions[key];
+            if (String(key) === String(selectedPermission)) opt.selected = true;
+            permSel.appendChild(opt);
+        }
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = "button";
+        removeBtn.textContent = "- Remove";
+        removeBtn.addEventListener('click', () => removeContainerAndCleanupTitles(div));
+
+        div.append("Node: ", nodeSel, " Title: ", titleInput, " Permission: ", permSel, " ", removeBtn);
+
+        // attach title watcher BEFORE appending (so it registers usedTitles)
+        watchTitle(titleInput);
+
+        document.getElementById('connections').appendChild(div);
+    }
+
+    function addAdditionalField(selectedMap = currentMapName, selectedNode = "", selectedPermission = "", selectedTitle = "") {
+        const div = document.createElement('div');
+
+        const mapSel = document.createElement('select');
+        mapSel.name = "additional_map_name[]";
+        for (const map in possibleNodes) {
+            const opt = document.createElement('option');
+            opt.value = map;
+            opt.textContent = map;
+            if (map === selectedMap) opt.selected = true;
+            mapSel.appendChild(opt);
+        }
+
+        const nodeSel = document.createElement('select');
+        nodeSel.name = "additional_node_name[]";
+        buildNodeOptionsFor(nodeSel, mapSel.value, selectedNode);
+
+        mapSel.addEventListener('change', () => buildNodeOptionsFor(nodeSel, mapSel.value, null));
+
+        const titleInput = document.createElement('input');
+        titleInput.type = "text";
+        titleInput.name = "additional_title[]";
+        titleInput.required = true;
+        titleInput.value = selectedTitle || "";
+
+        // attach watcher
+        watchTitle(titleInput);
+
+        const permSel = document.createElement('select');
+        permSel.name = "additional_permission[]";
+        for (const key in possiblePermissions) {
+            const opt = document.createElement('option');
+            opt.value = key;
+            opt.textContent = possiblePermissions[key];
+            if (String(key) === String(selectedPermission)) opt.selected = true;
+            permSel.appendChild(opt);
+        }
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = "button";
+        removeBtn.textContent = "- Remove";
+        removeBtn.addEventListener('click', () => removeContainerAndCleanupTitles(div));
+
+        div.append("Map: ", mapSel, " Node: ", nodeSel, " Title: ", titleInput, " Permission: ", permSel, " ", removeBtn);
+        document.getElementById('additional_data').appendChild(div);
+    }
+
+    // other dynamic fields
+    function addListField(containerId, name, type = "text") {
+        const div = document.createElement('div');
+        const input = document.createElement('input');
+        input.type = type;
+        input.name = name + "[]";
+        const removeBtn = document.createElement('button');
+        removeBtn.type = "button";
+        removeBtn.textContent = "- Remove";
+        removeBtn.addEventListener('click', () => div.remove());
+        div.append(input, removeBtn);
+        document.getElementById(containerId).appendChild(div);
+    }
+
+    function addSelectField(containerId, optionsList, name) {
+        const div = document.createElement('div');
+        const sel = document.createElement('select');
+        sel.name = name + "[]";
+        const emptyOpt = document.createElement('option');
+        emptyOpt.value = "";
+        emptyOpt.disabled = true;
+        emptyOpt.selected = true;
+        emptyOpt.textContent = "Select";
+        sel.appendChild(emptyOpt);
+        optionsList.forEach(optVal => {
+            const opt = document.createElement('option');
+            if (Array.isArray(optVal)) {
+                opt.value = optVal[0];
+                opt.textContent = optVal[0] + ": " + optVal[1];
+            } else {
+                opt.value = optVal;
+                opt.textContent = optVal;
+            }
+            sel.appendChild(opt);
+        });
+        const removeBtn = document.createElement('button');
+        removeBtn.type = "button";
+        removeBtn.textContent = "- Remove";
+        removeBtn.addEventListener('click', () => div.remove());
+        div.appendChild(sel);
+        div.appendChild(removeBtn);
+        document.getElementById(containerId).appendChild(div);
+    }
+
+    // attach UI bindings (buttons)
+    function attachBindings() {
+        document.getElementById('addConnection').addEventListener('click', () => addConnectionField());
+        document.getElementById('addSentenceFirst').addEventListener('click', () => addListField('sentences_first', 'sentences_first'));
+        document.getElementById('addSentenceLast').addEventListener('click', () => addListField('sentences_last', 'sentences_last'));
+        document.getElementById('addMonster').addEventListener('click', () => addSelectField('monsters', possibleMonsters, 'monsters'));
+        document.getElementById('addItem').addEventListener('click', () => addSelectField('items', possibleItems, 'items'));
+        document.getElementById('addCommand').addEventListener('click', () => {
+            const div = document.createElement('div');
+            const sel = document.createElement('select');
+            sel.name = "commands[]";
+            for (const key in possibleCommands) {
+                const opt = document.createElement('option');
+                opt.value = key;
+                opt.textContent = possibleCommands[key];
+                sel.appendChild(opt);
+            }
+            const removeBtn = document.createElement('button');
+            removeBtn.type = "button";
+            removeBtn.textContent = "- Remove";
+            removeBtn.addEventListener('click', () => div.remove());
+            div.appendChild(sel);
+            div.appendChild(removeBtn);
+            document.getElementById('commands').appendChild(div);
+        });
+        document.getElementById('addAdditional').addEventListener('click', () => addAdditionalField());
+    }
+
+    // final check on submit: ensure no duplicates remain and required titles filled
+    function attachSubmitCheck() {
+        const form = document.getElementById('node-form');
+        form.addEventListener('submit', (e) => {
+            // gather all titles
+            const allTitles = [];
+            document.querySelectorAll('input[name="connections_title[]"], input[name="additional_title[]"]').forEach(i => {
+                if (i.value && i.value.trim()) allTitles.push(i.value.trim());
+            });
+            // check uniqueness
+            const seen = new Set();
+            for (const t of allTitles) {
+                if (seen.has(t)) {
+                    alert('Duplicate title detected: "' + t + '". Titles must be unique across Connections and Entrances.');
+                    e.preventDefault();
+                    return;
+                }
+                seen.add(t);
+            }
+            // also ensure required titles are not empty
+            const requiredEmpty = Array.from(document.querySelectorAll('input[name="connections_title[]"][required], input[name="additional_title[]"][required]')).some(i => !(i.value && i.value.trim()));
+            if (requiredEmpty) {
+                alert('Please fill in all required title fields.');
+                e.preventDefault();
+                return;
+            }
+        });
+    }
+
+    // main init (run now or on DOMContentLoaded)
+    function mainInit() {
+        try {
+            initPreloaded();
+            attachBindings();
+            attachSubmitCheck();
+        } catch (err) {
+            console.error('Init error', err);
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', mainInit);
+    } else {
+        // DOM already ready (script placed at end) -> run immediately
+        mainInit();
+    }
+</script>
+
+
+{% endblock %}

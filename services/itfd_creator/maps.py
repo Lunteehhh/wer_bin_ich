@@ -29,6 +29,19 @@ class Node:
 	def entrances(self) -> list[[str, str, str, int]]:
 		return self.additional_data
 
+	def dictionary(self) -> dict:
+		return {
+			"name": self.name,
+			"category": self.category,
+			"connections": self.connections,
+			"sentence_first": self.sentences_first,
+			"sentence_last": self.sentences_last,
+			"monsters": self.monsters,
+			"items": self.items,
+			"commands": self.commands,
+			"additional_data": self.additional_data
+		}
+
 
 @dataclass(slots=True)
 class Map:
@@ -69,7 +82,7 @@ def _convert_string_to_entrances(entrances_string: str
 	return entrances
 
 
-def _convert_connections_to_string(connections: list[[str, str, int]]) -> str:
+def _convert_connections_to_string(connections: list | tuple) -> str:
 	_con_nodes = [f"{val[0]};{val[1]};{val[2]}" for val in connections]
 
 	return "\n".join(_con_nodes)
@@ -83,20 +96,37 @@ def _convert_entrances_to_string(entrances: list[[str, str, str, int]]) -> str:
 
 def _node_from_db(name: str,
                   category: int,
-                  connections: str,
-                  sentences_first: str,
-                  sentences_last: str,
-                  monsters: str,
-                  items: str,
-				  command: str,
-				  additional_data: str) -> Node:
-	_connections: list[[str, str, int]]
-	_connections = _convert_string_to_connections(connections)
-	_sentences_first: list[str] = sentences_first.split("\n")
-	_sentences_last: list[str] = sentences_last.split("\n")
-	_monsters: list[str] = monsters.split(";")
-	_items: list[int] = list(map(int, items.split(";"))) if items else []
-	_command: list[int] = list(map(int, command.split(";"))) if command else []
+                  connections: str | None,
+                  sentences_first: str | None,
+                  sentences_last: str | None,
+                  monsters: str | None,
+                  items: str | None,
+				  command: str | None,
+				  additional_data: str | None) -> Node:
+	if connections:
+		connections = _convert_string_to_connections(connections)
+	else:
+		connections = []
+	if sentences_first:
+		sentences_first = sentences_first.split("\n")
+	else:
+		sentences_first = []
+	if sentences_last:
+		sentences_last = sentences_last.split("\n")
+	else:
+		sentences_last = []
+	if monsters:
+		monsters = monsters.split(";")
+	else:
+		monsters = []
+	if items:
+		items = list(map(int, items.split(";")))
+	else:
+		items = []
+	if command:
+		command = list(map(int, command.split(";")))
+	else:
+		command = []
 
 	match category:
 		case 1:
@@ -104,8 +134,8 @@ def _node_from_db(name: str,
 		case _:
 			_additional_data = None
 
-	return Node(name, category, _connections, _sentences_first, _sentences_last,
-			    _monsters, _items, _command, _additional_data)
+	return Node(name, category, connections, sentences_first, sentences_last,
+			    monsters, items, command, _additional_data)
 
 
 # Service Functions
@@ -190,12 +220,12 @@ def add_node(user: str,
 	path = f"data/users/{user}/itfd_creator/{pack_name}.db"
 
 	# preparing for sql injections
-	_connections: str = _convert_connections_to_string(connections)
-	_sentences_first: str = "\n".join(sentences_first)
-	_sentences_last: str = "\n".join(sentences_last)
-	_monsters: str = ";".join(monsters)
-	_items: str = ";".join(map(str, items))
-	_commands: str = ";".join(map(str, commands))
+	_connections = _convert_connections_to_string(connections)
+	_sentences_first = "\n".join(sentences_first) if sentences_first else None
+	_sentences_last = "\n".join(sentences_last) if sentences_last else None
+	_monsters = ";".join(monsters) if monsters else None
+	_items = ";".join(map(str, items)) if items else None
+	_commands = ";".join(map(str, commands)) if commands else None
 
 	match category:
 		case 1:
@@ -512,6 +542,8 @@ def delete_node(user: str,
 							   " WHERE name = ?",
 							   (entrances, linked_by_node))
 
+		cursor.execute(f"DROP TABLE _map_{map_name}_{node_name}")
+
 		# delete main
 		cursor.execute(f"DELETE FROM map_{map_name} "
 					   f"WHERE name = ?", (node_name,))
@@ -522,10 +554,10 @@ def delete_node(user: str,
 		for node_name, node_data in results:
 			nodes = _convert_string_to_connections(node_data)
 
-			without_deleted_node = filter(
+			without_deleted_node = tuple(filter(
 				lambda a: False if a[0] == node_name else True,
 				nodes
-			)
+			))
 
 			if len(nodes) != len(without_deleted_node):
 				new_connections = _convert_connections_to_string(

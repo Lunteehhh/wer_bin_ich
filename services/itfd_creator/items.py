@@ -69,6 +69,21 @@ def add(user: str,
         conn.commit()
 
 
+def get(user: str,
+        pack_name: str,
+        item_id: int) -> tuple[str, int, int, int, int, int, int]:
+    path = f"data/users/{user}/itfd_creator/{pack_name}.db"
+    with sqlite3.connect(path) as conn:
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT name, category, a, b, c, d, e "
+                       "FROM items WHERE num = ?", (item_id,))
+
+        item = cursor.fetchone()
+
+    return item
+
+
 def items(user: str,
           pack_name: str) -> list:
     path = f"data/users/{user}/itfd_creator/{pack_name}.db"
@@ -119,6 +134,7 @@ def edit(user: str,
 def delete(user: str,
            pack_name: str,
            item_id: int):
+    item_id_str = str(item_id)
     path = f"data/users/{user}/itfd_creator/{pack_name}.db"
     with sqlite3.connect(path) as conn:
         cursor = conn.cursor()
@@ -133,7 +149,6 @@ def delete(user: str,
 
             fetched_items, = cursor.fetchone()
             fetched_items = fetched_items.split(";")
-            item_id_str = str(item_id)
             fetched_items = [x for x in fetched_items if x != item_id_str]
             fetched_items = ";".join(fetched_items)
             cursor.execute(f"UPDATE monsters "
@@ -168,17 +183,17 @@ def delete(user: str,
 
 def check_if_items_exists(user: str,
                           pack_name: str,
-                          items_ids: list[int]) -> set[int]:
+                          item_ids: list[int]) -> set[int]:
     path = f"data/users/{user}/itfd_creator/{pack_name}.db"
     with sqlite3.connect(path) as conn:
         cursor = conn.cursor()
 
-        items_ids_set = set(items_ids)
+        items_ids_set = set(item_ids)
 
         placeholders = ",".join("?" for _ in items_ids_set)
 
         cursor.execute(f"SELECT num FROM items WHERE num IN ({placeholders})",
-                       items_ids)
+                       tuple(items_ids_set))
         existing_items = set(row[0] for row in cursor.fetchall())
 
         missing_nums = items_ids_set - existing_items
@@ -197,3 +212,21 @@ def possible_items(user: str,
         results = cursor.fetchall()
 
         return results
+
+
+def get_linkage(user: str,
+                pack_name: str,
+                item_id: int) -> tuple[list, list]:
+    path = f"data/users/{user}/itfd_creator/{pack_name}.db"
+    with sqlite3.connect(path) as conn:
+        cursor = conn.cursor()
+
+        cursor.execute(f"SELECT * FROM _item_{item_id}_monster")
+        linkage_monsters = cursor.fetchall()
+
+        cursor.execute(f"SELECT * FROM _item_{item_id}_map")
+        linkage_maps = cursor.fetchall()
+
+    return linkage_monsters, linkage_maps
+
+

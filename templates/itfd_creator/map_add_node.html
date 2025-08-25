@@ -1,157 +1,72 @@
 {% extends "itfd_creator/base_tools.html" %}
 
 {% block tools_content %}
-<h1>Edit Node {{ node_data.name }} ({{ map_name }})</h1>
+<h1>Add Node To {{ map_name }}</h1>
 
-<form id="node-form" method="post" action="/itfd-creator/pack/{{ pack }}/maps/{{ map_name }}/edit-node/{{ node_data.name }}">
+<form id="node-form" method="post" action="/itfd-creator/packs/{{ pack }}/maps/{{ map_name }}/add-node">
     <label for="name">Name:</label>
-    <input type="text" id="name" name="name" value="{{ node_data.name }}" required>
+    <input type="text" id="name" name="name" required>
     <br><br>
 
     <label for="category">Category:</label>
     <select id="category" name="category" required>
-        <option value="0" {% if node_data.category == 0 %}selected{% endif %}>Normal</option>
-        <option value="1" {% if node_data.category == 1 %}selected{% endif %}>Connected to another map</option>
-        <option value="2" {% if node_data.category == 2 %}selected{% endif %}>Monster spawner</option>
-        <option value="3" {% if node_data.category == 3 %}selected{% endif %}>Resource node</option>
+        <option value="0">Normal</option>
+        <option value="1">Connected to another map</option>
+        <option value="2">Monster spawner</option>
+        <option value="3">Resource node</option>
     </select>
     <br><br>
 
-    <!-- Connections -->
     <fieldset>
         <legend>Connections</legend>
-        <div id="connections">
-            {% for c in node_data.connections %}
-            <div>
-                <select name="connections_node_name[]">
-                    {% for n in possible_nodes[map_name] %}
-                    <option value="{{ n }}" {% if n == c.node_name %}selected{% endif %}>{{ n }}</option>
-                    {% endfor %}
-                </select>
-                <label> Title: <input type="text" name="connections_title[]" value="{{ c.title }}"></label>
-                <label> Permission: <input type="number" name="connections_permission[]" value="{{ c.permission }}"></label>
-                <button type="button" class="remove-btn">- Remove</button><br>
-            </div>
-            {% endfor %}
-        </div>
+        <div id="connections"></div>
         <button type="button" id="addConnection">+ Add Connection</button>
     </fieldset>
     <br>
 
-    <!-- Sentences First -->
     <fieldset>
         <legend>Sentences First</legend>
-        <div id="sentences_first">
-            {% for s in node_data.sentences_first %}
-            <div>
-                <input type="text" name="sentences_first[]" value="{{ s }}">
-                <button type="button" class="remove-btn">- Remove</button>
-            </div>
-            {% endfor %}
-        </div>
+        <div id="sentences_first"></div>
         <button type="button" id="addSentenceFirst">+ Add</button>
     </fieldset>
     <br>
 
-    <!-- Sentences Last -->
     <fieldset>
         <legend>Sentences Last</legend>
-        <div id="sentences_last">
-            {% for s in node_data.sentences_last %}
-            <div>
-                <input type="text" name="sentences_last[]" value="{{ s }}">
-                <button type="button" class="remove-btn">- Remove</button>
-            </div>
-            {% endfor %}
-        </div>
+        <div id="sentences_last"></div>
         <button type="button" id="addSentenceLast">+ Add</button>
     </fieldset>
     <br>
 
-    <!-- Monsters -->
     <fieldset>
         <legend>Monsters</legend>
-        <div id="monsters">
-            {% for m in node_data.monsters %}
-            <div>
-                <select name="monsters[]">
-                    <option value="" disabled>Select monster</option>
-                    {% for pm in possible_monsters %}
-                    <option value="{{ pm }}" {% if pm == m %}selected{% endif %}>{{ pm }}</option>
-                    {% endfor %}
-                </select>
-                <button type="button" class="remove-btn">- Remove</button><br>
-            </div>
-            {% endfor %}
-        </div>
+        <div id="monsters"></div>
         <button type="button" id="addMonster">+ Add</button>
     </fieldset>
     <br>
 
-    <!-- Items -->
     <fieldset>
         <legend>Items</legend>
-        <div id="items">
-            {% for i in node_data.items %}
-            <div>
-                <select name="items[]">
-                    <option value="" disabled>Select item</option>
-                    {% for pi in possible_items %}
-                    <option value="{{ pi[0] }}" {% if pi[0] == i %}selected{% endif %}>{{ pi[0] }}: {{ pi[1] }}</option>
-                    {% endfor %}
-                </select>
-                <button type="button" class="remove-btn">- Remove</button><br>
-            </div>
-            {% endfor %}
-        </div>
+        <div id="items"></div>
         <button type="button" id="addItem">+ Add</button>
     </fieldset>
     <br>
 
-    <!-- Commands -->
     <fieldset>
         <legend>Commands</legend>
-        <div id="commands">
-            {% for cmd in node_data.commands %}
-            <div>
-                <input type="number" name="commands[]" value="{{ cmd }}">
-                <button type="button" class="remove-btn">- Remove</button>
-            </div>
-            {% endfor %}
-        </div>
+        <div id="commands"></div>
         <button type="button" id="addCommand">+ Add</button>
     </fieldset>
     <br>
 
-    <!-- Additional Data (nur wenn category=1) -->
-    <fieldset id="additional_data_fieldset" style="{% if node_data.category == 1 %}display:block{% else %}display:none{% endif %};">
+    <fieldset id="additional_data_fieldset" style="display:none;">
         <legend>Additional Data</legend>
-        <div id="additional_data">
-            {% if node_data.additional %}
-            {% for a in node_data.additional %}
-            <div>
-                <select name="additional_map_name[]">
-                    {% for map in possible_nodes %}
-                    <option value="{{ map }}" {% if map == a.map_name %}selected{% endif %}>{{ map }}</option>
-                    {% endfor %}
-                </select>
-                <select name="additional_node_name[]">
-                    {% for n in possible_nodes[a.map_name] %}
-                    <option value="{{ n }}" {% if n == a.node_name %}selected{% endif %}>{{ n }}</option>
-                    {% endfor %}
-                </select>
-                <label> Title: <input type="text" name="additional_title[]" value="{{ a.title }}"></label>
-                <label> Permission: <input type="number" name="additional_permission[]" value="{{ a.permission }}"></label>
-                <button type="button" class="remove-btn">- Remove</button><br>
-            </div>
-            {% endfor %}
-            {% endif %}
-        </div>
+        <div id="additional_data"></div>
         <button type="button" id="addAdditional">+ Add Entrance</button>
     </fieldset>
 
     <br>
-    <button type="submit">Save Node</button>
+    <button type="submit">Add Node</button>
 </form>
 
 <script>

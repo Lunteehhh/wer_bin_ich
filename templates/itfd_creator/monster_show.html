@@ -1,0 +1,53 @@
+{% extends "itfd_creator/base_tools.html" %}
+
+{% block tools_content %}
+<h1>{{ monster[0] }}</h1>
+
+<p>Health: {{ monster[1] }}</p>
+
+<p>Strength: {{ monster[2] }}</p>
+
+<p>Xp: {{ monster[3] }}</p>
+
+<p>
+    Items:<br>
+    {% for item in monster[4] %}
+    - <a href="/itfd-creator/packs/{{pack}}/items/{{item}}">{{item}}</a><br>
+    {% endfor %}
+</p>
+
+<p>
+    Sentences:<br>
+    {% for sentence in monster[5] %}
+    - {{ sentence }}<br>
+    {% endfor %}
+</p>
+
+<h3>Linkage Maps</h3>
+<table border="1">
+    <thead>
+    <tr>
+        <th>Map</th>
+        <th>Node</th>
+        <th>Count</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for map, node, count in linkage_maps %}
+    <tr>
+        <td>
+            <a href="/itfd-creator/packs/{{ pack }}/maps/{{ map }}">{{ map }}</a>
+        </td>
+        <td>
+            <a href="/itfd-creator/packs/{{ pack }}/maps/{{ map }}/{{ node }}">{{ node }}</a>
+        </td>
+        <td>
+            {{ count }}
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+
+</table>
+
+{% endblock %}

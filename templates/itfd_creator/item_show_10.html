@@ -1,0 +1,69 @@
+{% extends "itfd_creator/base_tools.html" %}
+
+{% block tools_content %}
+<h1>{{ item[0] }}</h1>
+
+<p>Category: Food</p>
+
+<p>Food-Points: {{ item[2}] }</p>
+
+<p>Effect: {{ item[3] }}</p>
+
+<p>Effect A: {{ item[4] }}</p>
+
+<p>Effect B: {{ item[5] }}</p>
+
+<p>Command: {{ item[6] }}</p>
+
+
+<h3>Linkage Monster</h3>
+<table border="1">
+    <thead>
+    <tr>
+        <th>Monster</th>
+        <th>Count</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for monster, count in linkage_monsters %}
+    <tr>
+        <td>
+            <a href="/itfd-creator/packs/{{ pack }}/monsters/{{ monster }}">{{ monster }}</a>
+        </td>
+        <td>
+            {{ count }}
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+
+</table>
+
+<h3>Linkage Maps</h3>
+<table border="1">
+    <thead>
+    <tr>
+        <th>Map</th>
+        <th>Node</th>
+        <th>Count</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for map, node, count in linkage_maps %}
+    <tr>
+        <td>
+            <a href="/itfd-creator/packs/{{ pack }}/maps/{{ map }}">{{ map }}</a>
+        </td>
+        <td>
+            <a href="/itfd-creator/packs/{{ pack }}/maps/{{ map }}/{{ node }}">{{ node }}</a>
+        </td>
+        <td>
+            {{ count }}
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+
+</table>
+
+{% endblock %}

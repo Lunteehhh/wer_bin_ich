@@ -1,5 +1,5 @@
 
-from fastapi import APIRouter, Request, Cookie, Depends, Form
+from fastapi import APIRouter, Request, Depends, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 
@@ -47,7 +47,10 @@ TOOLS = [
     }
 ]
 
-# packs
+
+"""PACKS"""
+
+
 @router.get("/itfd-creator", response_class=HTMLResponse)
 def pack_selector(request: Request,
                   current_user: dict = Depends(auth.check_access_token)):
@@ -167,15 +170,43 @@ def pack_delete_post(request: Request,
 """ITEMS"""
 
 
+@router.get("/itfd-creator/packs/{pack}/items/{item_id}")
+def item_show(request: Request,
+              pack: str,
+              item_id: int,
+              current_user: dict = Depends(auth.check_access_token)):
+    if current_user["error"]:
+        response = RedirectResponse(url="/login", status_code=303)
+        response.delete_cookie("access_token")
+        response.delete_cookie("user_name")
+        return response
+
+    user = current_user["user_name"]
+    item_data = item_service.get(user, pack, item_id)
+
+    linkages = item_service.get_linkage(user, pack, item_id)
+    linkage_monsters, linkage_maps = linkages
+
+    return templates.TemplateResponse(
+        f"itfd_creator/item_show_{item_id}.html",
+        {
+            "request": request,
+            "index_tab": "itfd-creator",
+            "user_name": current_user["user_name"],
+            "tools": TOOLS,
+            "pack": pack,
+            "item": item_data,
+            "linkage_monsters": linkage_monsters,
+            "linkage_maps": linkage_maps
+        }
+    )
+
+
 @router.get("/itfd-creator/packs/{pack}/add-item", response_class=HTMLResponse)
 def add_item_form(request: Request,
                   pack: str,
                   current_user: dict = Depends(auth.check_access_token)):
-    """Formular zum Hinzufügen eines Items anzeigen."""
-    if not pack:
-        return RedirectResponse(url="/itfd-creator", status_code=303)
-
-    return templates.TemplateResponse("itfd_creator/add_item.html", {
+    return templates.TemplateResponse("itfd_creator/item_add.html", {
         "request": request,
         "index_tab": "itfd-creator",
         "user_name": current_user["user_name"],
@@ -207,7 +238,8 @@ async def add_item(pack: str,
     user = current_user["user_name"]
     item_service.add(user, pack, name, category, a, b, c, d, e)
 
-    return RedirectResponse(url="/itfd-creator/items", status_code=303)
+    return RedirectResponse(url=f"/itfd-creator/packs/{pack}/items",
+                            status_code=303)
 
 
 @router.get("/itfd-creator/packs/{pack}/items", response_class=HTMLResponse)
@@ -227,7 +259,7 @@ async def items_index(request: Request,
     user = current_user["user_name"]
     fetched_items = item_service.items(user, pack)
 
-    return templates.TemplateResponse("itfd_creator/items_index.html", {
+    return templates.TemplateResponse("itfd_creator/item_index.html", {
         "request": request,
         "index_tab": "itfd-creator",
         "user_name": current_user["user_name"],
@@ -260,7 +292,7 @@ def edit_item_form(request: Request,
     if not item:
         return HTMLResponse("Item not found", status_code=404)
 
-    return templates.TemplateResponse("itfd_creator/edit_item.html", {
+    return templates.TemplateResponse("itfd_creator/item_edit.html", {
         "request": request,
         "item": item,
         "tools": TOOLS,
@@ -293,7 +325,8 @@ def edit_item(item_id: int,
     user = current_user["user_name"]
     item_service.edit(user, pack, item_id, name, category, a, b, c, d, e)
 
-    return RedirectResponse(url="/itfd-creator/items", status_code=303)
+    return RedirectResponse(url=f"/itfd-creator/packs/{pack}/items",
+                            status_code=303)
 
 
 @router.post("/itfd-creator/packs/{pack}/delete-item/{item_id}")
@@ -313,7 +346,10 @@ def delete_item(item_id: int,
     user = current_user["user_name"]
     item_service.delete(user, pack, item_id)
 
-    return RedirectResponse(url="/itfd-creator/items", status_code=303)
+    return RedirectResponse(url=f"/itfd-creator/packs/{pack}/items", status_code=303)
+
+
+"""Monsters"""
 
 
 @router.get("/itfd-creator/packs/{pack}/monsters", response_class=HTMLResponse)
@@ -344,7 +380,35 @@ def monsters_index(request: Request,
     })
 
 
-@router.get("/itfd-creator/packs/{pack}/add-monster", response_class=HTMLResponse)
+@router.get("/itfd-creator/packs/{pack}/monsters/{monster}",
+            response_class=HTMLResponse)
+def monster_show(request: Request,
+                 monster: str,
+                 pack: str,
+                 current_user: dict = Depends(auth.check_access_token)):
+    if current_user["error"]:
+        response = RedirectResponse(url="/login", status_code=303)
+        response.delete_cookie("access_token")
+        response.delete_cookie("user_name")
+        return response
+
+    user = current_user["user_name"]
+
+    monster_data = monster_service.get(user, pack, monster)
+    if not monster:
+        return HTMLResponse(content="Monster not found!", status_code=404)
+
+    linkage_maps = monster_service.get_linkage(user, pack, monster)
+    return templates.TemplateResponse("itfd_creator/monster_show.html", {
+        "request": request,
+        "monster": monster_data,
+        "linkage_maps": linkage_maps,
+        "pack": pack
+    })
+
+
+@router.get("/itfd-creator/packs/{pack}/add-monster",
+            response_class=HTMLResponse)
 def add_monster_page(request: Request,
                     pack: str,
                     current_user: dict = Depends(auth.check_access_token)):
@@ -369,8 +433,7 @@ def add_monster_page(request: Request,
 
 
 @router.post("/itfd-creator/packs/{pack}/add-monster")
-def add_monster(request: Request,
-                pack: str,
+def add_monster(pack: str,
                 current_user: dict = Depends(auth.check_access_token),
                 name: str = Form(...),
                 strength: int = Form(...),
@@ -389,18 +452,19 @@ def add_monster(request: Request,
 
     user = current_user["user_name"]
 
-    not_existing_items = item_service.check_if_items_exists(user, pack,
-                                                            items)
+    not_existing_items = item_service.check_if_items_exists(user, pack, items)
     if not_existing_items:
         return
 
     monster_service.add(user, pack,
                         name, health, strength, xp, items, sentences)
 
-    return RedirectResponse(url="/itfd-creator/monsters", status_code=303)
+    return RedirectResponse(url=f"/itfd-creator/packs/{pack}/monsters",
+                            status_code=303)
 
 
-@router.get("/itfd-creator/packs/{pack}/edit-monster/{monster}", response_class=HTMLResponse)
+@router.get("/itfd-creator/packs/{pack}/edit-monster/{monster}",
+            response_class=HTMLResponse)
 def edit_monster_page(request: Request,
                       monster: str,
                       pack: str,
@@ -502,7 +566,7 @@ def maps_page(request: Request,
 
     maps = maps_service.maps(user, pack)
 
-    return templates.TemplateResponse("itfd_creator/maps_page.html", {
+    return templates.TemplateResponse("itfd_creator/map_page.html", {
         "request": request,
         "index_tab": "itfd-creator",
         "user_name": user,
@@ -526,7 +590,7 @@ def add_map(request: Request,
         return RedirectResponse(url="/itfd-creator", status_code=303)
     user = current_user["user_name"]
 
-    return templates.TemplateResponse("itfd_creator/maps_add.html", {
+    return templates.TemplateResponse("itfd_creator/map_add.html", {
         "request": request,
         "index_tab": "itfd-creator",
         "user_name": user,
@@ -535,7 +599,7 @@ def add_map(request: Request,
     })
 
 
-@router.post("/itfd-creator/packs/{pack}add-map")
+@router.post("/itfd-creator/packs/{pack}/add-map")
 def add_map(request: Request,
             pack: str,
             current_user: dict = Depends(auth.check_access_token),
@@ -553,7 +617,7 @@ def add_map(request: Request,
     maps_service.add(user, pack, name)
     map_data = maps_service.get(user, pack, name)
 
-    return templates.TemplateResponse("itfd_creator/maps_show.html", {
+    return templates.TemplateResponse("itfd_creator/map_show.html", {
         "request": request,
         "index_tab": "itfd-creator",
         "user_name": user,
@@ -583,7 +647,7 @@ def show_map(map_name: str,
 
     map_data = maps_service.get(user, pack, map_name)
 
-    return templates.TemplateResponse("itfd_creator/maps_show.html", {
+    return templates.TemplateResponse("itfd_creator/map_show.html", {
         "request": request,
         "index_tab": "itfd-creator",
         "user_name": user,
@@ -613,7 +677,7 @@ def add_node_page(request: Request,
     possible_monsters = monster_service.possible_monsters(user, pack)
     possible_nodes = maps_service.possible_nodes(user, pack)
 
-    return templates.TemplateResponse("itfd_creator/maps_add_node.html", {
+    return templates.TemplateResponse("itfd_creator/map_add_node.html", {
         "request": request,
         "index_tab": "itfd-creator",
         "user_name": user,
@@ -622,7 +686,8 @@ def add_node_page(request: Request,
         "possible_items": possible_items,
         "possible_monsters": possible_monsters,
         "possible_nodes": possible_nodes,
-        "pack": pack
+        "pack": pack,
+        "possible_permissions": {0: "Nothing"}
     })
 
 
@@ -654,6 +719,7 @@ async def add_node(
     monsters = form.getlist("monsters[]")
     commands = [int(x) for x in form.getlist("commands[]")]
 
+
     if current_user["error"]:
         response = RedirectResponse(url="/login", status_code=303)
         response.delete_cookie("access_token")
@@ -666,7 +732,9 @@ async def add_node(
     user = current_user["user_name"]
 
     # Build connections
-    connections = list(zip(connections_node_name, connections_title, connections_permission))
+    connections = list(zip(connections_node_name,
+                           connections_title,
+                           connections_permission))
 
     # Build additional_data only if category == 1
     additional_data = None
@@ -690,7 +758,8 @@ async def add_node(
 
     map_data = maps_service.get(user, pack, map_name)
 
-    return templates.TemplateResponse("itfd_creator/maps_show.html", {
+
+    return templates.TemplateResponse("itfd_creator/map_show.html", {
         "request": request,
         "index_tab": "itfd-creator",
         "user_name": user,
@@ -718,12 +787,33 @@ def edit_node_page(request: Request,
     user = current_user["user_name"]
 
     node = maps_service.get_node(user, pack, map_name, node_name)
+    print(node)
 
     possible_items = item_service.possible_items(user, pack)
     possible_monsters = monster_service.possible_monsters(user, pack)
     possible_nodes = maps_service.possible_nodes(user, pack)
 
-    return templates.TemplateResponse("itfd_creator/maps_edit_node.html", {
+    import json
+
+    x = {
+        "map_name": map_name,
+        "node_data": node.dictionary(),
+        "possible_items": possible_items,
+        "possible_monsters": possible_monsters,
+        "possible_nodes": possible_nodes,
+        "pack": pack,
+        "possible_permissions": {0: "Nothing"},
+        "possible_commands": {0: "Nothing"}
+    }
+    print(x)
+
+    x = json.dumps(x)
+
+    with open("data.json", "w") as file:
+        file.write(x)
+
+
+    return templates.TemplateResponse("itfd_creator/map_edit_node.html", {
         "request": request,
         "index_tab": "itfd-creator",
         "user_name": user,
@@ -733,7 +823,9 @@ def edit_node_page(request: Request,
         "possible_items": possible_items,
         "possible_monsters": possible_monsters,
         "possible_nodes": possible_nodes,
-        "pack": pack
+        "pack": pack,
+        "possible_permissions": {0: "Nothing"},
+        "possible_commands": {0: "Nothing"}
     })
 
 
@@ -778,7 +870,9 @@ async def add_node(
     user = current_user["user_name"]
 
     # Build connections
-    connections = list(zip(connections_node_name, connections_title, connections_permission))
+    connections = list(zip(connections_node_name,
+                           connections_title,
+                           connections_permission))
 
     # Build additional_data only if category == 1
     additional_data = None
@@ -789,6 +883,14 @@ async def add_node(
             additional_title,
             additional_permission
         ))
+
+        print(user, pack, map_name, node_name,
+        name, category,
+        connections,
+        sentences_first, sentences_last,
+        monsters, items,
+        commands,
+        additional_data)
 
     maps_service.edit_node(
         user, pack, map_name, node_name,
@@ -802,7 +904,7 @@ async def add_node(
 
     map_data = maps_service.get(user, pack, map_name)
 
-    return templates.TemplateResponse("itfd_creator/maps_show.html", {
+    return templates.TemplateResponse("itfd_creator/map_show.html", {
         "request": request,
         "index_tab": "itfd-creator",
         "user_name": user,
@@ -835,7 +937,7 @@ async def delete_node(request: Request,
 
     map_data = maps_service.get(user, pack, map_name)
 
-    return templates.TemplateResponse("itfd_creator/maps_show.html", {
+    return templates.TemplateResponse("itfd_creator/map_show.html", {
         "request": request,
         "index_tab": "itfd-creator",
         "user_name": user,
@@ -844,3 +946,35 @@ async def delete_node(request: Request,
         "map_data": map_data,
         "pack": pack
     })
+
+
+# fetch select data
+
+
+@router.get("/itfd-creator/packs/{pack}/items/selectable")
+async def selectable_items(pack: str,
+                           current_user: dict = Depends(auth.check_access_token)
+                           ) -> dict[str, list[tuple[int, str]] | None]:
+    if current_user["error"]:
+        response = RedirectResponse(url="/login", status_code=303)
+        response.delete_cookie("access_token")
+        response.delete_cookie("user_name")
+        return {
+            "error": 401,
+            "data": None
+        }
+
+    if not pack:
+        return {
+            "error": 400,
+            "data": None
+        }
+
+    possible_items = item_service.possible_items(current_user["user_name"],
+                                                 pack)
+    return {
+        "error": 0,
+        "data": possible_items
+    }
+
+

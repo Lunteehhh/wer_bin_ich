@@ -228,3 +228,16 @@ def delete(user: str,
 		# delete monster
 		cursor.execute("DELETE FROM monsters WHERE name = ?", (monster,))
 		conn.commit()
+
+
+def get_linkage(user: str,
+                pack_name: str,
+                monster: str) -> list:
+	path = f"data/users/{user}/itfd_creator/{pack_name}.db"
+	with sqlite3.connect(path) as conn:
+		cursor = conn.cursor()
+
+		cursor.execute(f"SELECT * FROM _monster_{monster}")
+		linkage_maps = cursor.fetchall()
+
+	return linkage_maps
