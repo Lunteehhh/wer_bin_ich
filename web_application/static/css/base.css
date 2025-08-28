@@ -19,12 +19,16 @@
 
 .base-page li a {
     font-weight: bold;
-    display: block;
+    display: flex;
     color: skyblue;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
     border-bottom: 3px solid #dfdfdf;
+    height: 100%;
+    box-sizing: border-box;
 }
 
 .base-page li a:hover {

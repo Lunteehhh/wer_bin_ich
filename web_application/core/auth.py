@@ -1,25 +1,27 @@
 import os
+import shutil
 
-from fastapi import Request, HTTPException, status
+from fastapi import Request
 from jose import JWTError, jwt
 from pysqlcipher3 import dbapi2 as sqlite
 
 
 from datetime import datetime, timezone
 
-from core.config import PRAGMA_KEY, SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE
+from web_application.core.config import PRAGMA_KEY, SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE
 
 
 def init():
     """
-    initialize the auth databank with the PRAGMA_KEY of the config.py
+    Initialize the auth databank with the PRAGMA_KEY of the config.py
     """
     conn = sqlite.connect("data/auth.db")
     cursor = conn.cursor()
     cursor.execute(f'PRAGMA key = "{PRAGMA_KEY}"')
 
-
-    cursor.execute("CREATE TABLE IF NOT EXISTS users(name TEXT PRIMARY KEY, password TEXT NOT NULL)")
+    cursor.execute("CREATE TABLE IF NOT EXISTS users("
+                   "    name TEXT PRIMARY KEY, "
+                   "    password TEXT NOT NULL)")
     conn.commit()
 
 
@@ -92,7 +94,7 @@ def remove(name: str):
     """
     Deletes a user entry in the auth.db.
 
-    :param name: name of the user
+    :param name: Name of the user
     """
     conn = sqlite.connect("data/auth.db")
     cursor = conn.cursor()
@@ -100,6 +102,8 @@ def remove(name: str):
 
     cursor.execute(f"DELETE FROM users WHERE name = ?", (name, ))
     conn.commit()
+
+    shutil.rmtree("data/users/lunte")
 
 
 def create_token(data: dict):

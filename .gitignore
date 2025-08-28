@@ -1,4 +1,4 @@
-/core/config.py
+/web_application/core/config.py
 /data/auth.db
 /data/friends.db
 /data/users/test/itfd_creator/test_pack.db

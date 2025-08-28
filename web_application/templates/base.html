@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <link href="/static/base.css" rel="stylesheet">
+    <link href="/static/css/base.css" rel="stylesheet">
     <title>
         {% block title %}WhoAmI{% endblock %}
     </title>
@@ -21,7 +21,7 @@
                     {% if user_name %}
                     <li><a href="/you" class="{% if index_tab == 'you' %}active{% endif %}">You ({{user_name}})</a></li>
                     {% else %}
-                    <li><a href="/login" class="{% if index_tab == 'you' %}active{% endif %}">You (login)</a></li>
+                    <li><a href="/you/login" class="{% if index_tab == 'you' %}active{% endif %}">You (login)</a></li>
                     {% endif %}
                 </ul>
             </nav>

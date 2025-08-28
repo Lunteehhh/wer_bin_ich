@@ -6,9 +6,10 @@ from typing import Optional
 
 
 try:
-    conn = sqlite3.connect("data/friends.db")
-    cursor = conn.cursor()
-    friends_count = cursor.execute("SELECT COUNT(*) FROM friends").fetchone()[0]
+    _conn = sqlite3.connect("data/friends.db")
+    _cursor = _conn.cursor()
+    _cursor.execute("SELECT COUNT(*) FROM friends")
+    friends_count = _cursor.fetchone()[0]
 except sqlite3.OperationalError:
     friends_count = 0
 
@@ -17,7 +18,10 @@ def init():
     conn = sqlite3.connect("data/friends.db")
     cursor = conn.cursor()
 
-    cursor.execute("CREATE TABLE IF NOT EXISTS friends(name TEXT PRIMARY KEY, friends_page TEXT NOT NULL)")
+    cursor.execute("CREATE TABLE IF NOT EXISTS friends("
+                   "    name TEXT PRIMARY KEY, "
+                   "    friends_page TEXT NOT NULL"
+                   ")")
     conn.commit()
 
 
@@ -45,7 +49,7 @@ def add(name: str):
     cursor = conn.cursor()
 
     cursor.execute(f"INSERT INTO friends(name, friends_page) VALUES (\"{name}\", "
-                   f"\"/friends-page?name={name}\")")
+                   f"\"/friends/friends-page?name={name}\")")
     conn.commit()
 
     friends_count += 1
@@ -79,6 +83,7 @@ def update_friends_page(name: str, friends_page: Optional[str] = None):
         if os.path.exists(friends_page_pah):
             os.remove(friends_page_pah)
     conn.commit()
+
 
 if __name__ == "__main__":
     init()

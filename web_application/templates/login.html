@@ -5,14 +5,14 @@
 {% block content %}
 
 
-<link href="static/login.css" rel="stylesheet">
+<link href="/static/css/login.css" rel="stylesheet">
 
 
 <div class="login-content">
 {% if sign_up %}
     <h2>Sign Up</h2>
 
-    <form action="/sign_up" method="post">
+    <form action="/you/sign_up" method="post">
         <div class="form-row">
             <label for="name-su">name:</label>
             <input name="name" type="text" id="name-su" placeholder="1-24 signs.." minlength="1" maxlength="24" required>
@@ -37,14 +37,14 @@
         <p>Password aren't the same.</p>
         {% endif %}
         <div class="button-group">
-            <a href="/login" class="login">Cancel</a>
+            <a href="/you/login" class="login">Cancel</a>
             <button name="action" value="sign up" type="submit" class="sign-up">Sign Up</button>
         </div>
     </form>
     {% else %}
     <h2>Login</h2>
 
-    <form action="/login" method="post">
+    <form action="/you/login" method="post">
         <div class="form-row">
             <label for="name">name:</label>
             <input name="name" type="text" id="name" placeholder="1-24 signs.." minlength="1" maxlength="24" required>
@@ -55,28 +55,31 @@
         </div>
         <div class="button-group">
             <button name="action" value="login" type="submit" class="login">Login</button>
-            <a href="/sign-up" class="sign-up">Not registered?</a>
+            <a href="/you/sign-up" class="sign-up">Not registered?</a>
         </div>
         {% if error_num == 1 %}
-        <p>password or username was incorrect</p>
+        <p>Password or username was incorrect.</p>
         {% endif %}
     </form>
 {% endif %}
 </div>
+
 <script>
-    const checkbox = document.getElementById('dsgvo');
+    document.addEventListener("DOMContentLoaded", () => {
+        const checkbox = document.getElementById('dsgvo');
 
-    checkbox.addEventListener('invalid', (event) => {
-        if (!checkbox.checked) {
-            checkbox.setCustomValidity('Bitte akzeptiere die Datenschutzerklärung.');
-        } else {
+        checkbox.addEventListener('invalid', (event) => {
+            if (!checkbox.checked) {
+                checkbox.setCustomValidity('Bitte akzeptiere die Datenschutzerklärung.');
+            } else {
+                checkbox.setCustomValidity('');
+            }
+        });
+
+        checkbox.addEventListener('input', () => {
             checkbox.setCustomValidity('');
-        }
-    });
-
-    checkbox.addEventListener('input', () => {
-        checkbox.setCustomValidity('');
-    });
+        });
+    })
 </script>
 
 {% endblock %}
