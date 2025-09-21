@@ -1,0 +1,85 @@
+form {
+    width: 100%;
+    margin: 0 10rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+button.add-btn {
+    border: none;
+    align-content: center;
+    text-align: center;
+}
+
+.bold {
+    font-weight: bold;
+    align-items: center;
+}
+.center {
+    text-align: center;
+}
+
+/* Div */
+div.none-value {
+    background-color: beige;
+}
+
+/* Text Input */
+input[type="text"] {
+    font-size: 1.4rem;
+    border: none;
+    border-bottom: 2px solid #dfdfdf;
+    transition: border-bottom 0.2s;
+    outline: none;
+}
+
+input[type="text"]:valid {
+    border-bottom: 2px solid #dfdfdf;
+}
+input[type="text"].valid {
+    border-bottom: 2px solid #dfdfdf;
+    outline: none;
+}
+
+
+input[type="text"]:focus {
+    border-bottom: 2px solid skyblue;
+}
+input[type="text"]:invalid {
+    border-bottom: 2px solid hotpink;
+}
+
+input[type="text"].invalid {
+    border-bottom: 2px solid hotpink;
+    outline: none;
+}
+
+
+input[type="text"]:focus.invalid {
+    border-bottom-color: transparent; /* Fallback ausblenden */
+    background: repeating-linear-gradient(
+        to right,
+        skyblue 0px 8px,
+        transparent 8px 14px,
+        hotpink 14px 22px,
+        transparent 22px 28px
+    ) bottom / 100% 2px no-repeat;
+}
+
+input[type="text"]:focus.none-value {
+    border-bottom-color: transparent; /* Fallback ausblenden */
+    background: repeating-linear-gradient(
+            to right,
+            skyblue 0px 8px,
+            transparent 8px 14px,
+            #dfdfdf 14px 22px,
+            transparent 22px 28px
+    ) bottom / 100% 2px no-repeat;
+}
+
+input[type="text"].none-value {
+    border-bottom: 2px dashed #dfdfdf;
+    outline: none;
+}
+

@@ -1,5 +1,7 @@
-from fastapi import APIRouter, Form, Depends, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+import json
+
+from fastapi import APIRouter, Form, Depends, Request, Body, status
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 
 from web_application.core import auth, itfd_creator
@@ -79,8 +81,8 @@ def add_map(request: Request,
         return RedirectResponse(url="/itfd-creator", status_code=303)
     user = current_user["user_name"]
 
-    maps_service.add(user, pack, name)
-    map_data = maps_service.get(user, pack, name)
+    map_id = maps_service.add_map(user, pack, name)
+    map_data = maps_service.get(user, pack, map_id)
 
     return templates.TemplateResponse("itfd_creator/map_show.html", {
         "request": request,
@@ -93,9 +95,8 @@ def add_map(request: Request,
     })
 
 
-@router.get("/maps/{map_name}",
-            response_class=HTMLResponse)
-def show_map(map_name: str,
+@router.get("/maps/{map_id}", response_class=HTMLResponse)
+def show_map(map_id: int,
              request: Request,
              pack: str,
              current_user: dict = Depends(auth.check_access_token)):
@@ -109,14 +110,16 @@ def show_map(map_name: str,
         return RedirectResponse(url="/itfd-creator/", status_code=303)
     user = current_user["user_name"]
 
-    map_data = maps_service.get(user, pack, map_name)
+    map_data = maps_service.get(user, pack, map_id)
+
+    print(map_data)
 
     return templates.TemplateResponse("itfd_creator/map_show.html", {
         "request": request,
         "index_tab": "itfd-creator",
         "user_name": user,
         "tools": itfd_creator.TOOLS,
-        "map_name": map_name,
+        "map_name": map_id,
         "map_data": map_data,
         "pack": pack
     })
@@ -141,11 +144,14 @@ def add_node_page(request: Request,
     possible_monsters = monster_service.possible_monsters(user, pack)
     possible_nodes = maps_service.possible_nodes(user, pack)
 
-    return templates.TemplateResponse("itfd_creator/map_add_node.html", {
+    return templates.TemplateResponse("itfd_creator/map_node_form.html", {
         "request": request,
         "index_tab": "itfd-creator",
         "user_name": user,
         "tools": itfd_creator.TOOLS,
+
+        "node_data": None,
+        "node_id": None,
         "map_name": map_name,
         "possible_items": possible_items,
         "possible_monsters": possible_monsters,
@@ -155,232 +161,114 @@ def add_node_page(request: Request,
     })
 
 
-@router.post("/maps/{map_name}/add-node")
+@router.post("/maps/{map_id}/add-node")
 async def add_node(
     request: Request,
-    map_name: str,
+    map_id: int,
     pack: str,
-    current_user: dict = Depends(auth.check_access_token),
-
-    # basic fields
-    name: str = Form(...),
-    category: int = Form(...),
-
-    # additional_data (only if category == 1)
-    additional_map_name: list[str] = Form(default=[]),
-    additional_node_name: list[str] = Form(default=[]),
-    additional_title: list[str] = Form(default=[]),
-    additional_permission: list[int] = Form(default=[]),
+    node_data: dict = Body(...),
+    current_user: dict = Depends(auth.check_access_token)
 ):
-    form = await request.form()
-    sentences_first = form.getlist("sentences_first[]")
-    sentences_last = form.getlist("sentences_last[]")
-    connections_node_name = form.getlist("connections_node_name[]")
-    connections_title = form.getlist("connections_title[]")
-    connections_permission = [int(x) for x in
-                              form.getlist("connections_permission[]")]
-    items = list(map(int, form.getlist("items[]")))
-    monsters = form.getlist("monsters[]")
-    commands = [int(x) for x in form.getlist("commands[]")]
-
     if current_user["error"]:
-        response = RedirectResponse(url="/you/login", status_code=303)
-        response.delete_cookie("access_token")
-        response.delete_cookie("user_name")
-        return response
-
-    if not pack:
-        return RedirectResponse(url="/itfd-creator", status_code=303)
+        return JSONResponse(
+            {"error": "Not logged in"},
+            status_code=status.HTTP_401_UNAUTHORIZED
+        )
 
     user = current_user["user_name"]
 
-    # Build connections
-    connections = list(zip(connections_node_name,
-                           connections_title,
-                           connections_permission))
+    maps_service.add_node(user, pack, map_id, **node_data)
 
-    # Build additional_data only if category == 1
-    additional_data = None
-    if category == 1:
-        additional_data = list(zip(
-            additional_map_name,
-            additional_node_name,
-            additional_title,
-            additional_permission
-        ))
+    print(f"""
+    map:  {map_id}
+    pack: {pack}
+    user: {user}
+    data {node_data}
+    """)
 
-    maps_service.add_node(
-        user, pack, map_name,
-        name, category,
-        connections,
-        sentences_first, sentences_last,
-        monsters, items,
-        commands,
-        additional_data
-    )
-
-    map_data = maps_service.get(user, pack, map_name)
-
-    return templates.TemplateResponse("itfd_creator/map_show.html", {
-        "request": request,
-        "index_tab": "itfd-creator",
-        "user_name": user,
-        "tools": itfd_creator.TOOLS,
-        "map_name": map_name,
-        "map_data": map_data,
-        "pack": pack
+    return JSONResponse({
+        "status": "ok",
+        "redirect_url": f"/itfd-creator/packs/{pack}/maps/{map_id}"
     })
 
 
-@router.get("/maps/{map_name}/edit-node/{node_name}")
+@router.get("/maps/{map_id}/edit-node/{node_id}")
 def edit_node_page(request: Request,
                    pack: str,
-                   map_name: str,
-                   node_name: str,
+                   map_id: int,
+                   node_id: int,
                    current_user: dict = Depends(auth.check_access_token)):
     if current_user["error"]:
-        response = RedirectResponse(url="/you/login", status_code=303)
-        response.delete_cookie("access_token")
-        response.delete_cookie("user_name")
-        return response
+        return JSONResponse(
+            {"error": "Not logged in"},
+            status_code=status.HTTP_401_UNAUTHORIZED
+        )
 
-    if not pack:
-        return RedirectResponse(url="/itfd-creator/", status_code=303)
     user = current_user["user_name"]
+    node = maps_service.get_node(user, pack, map_id, node_id)
 
-    node = maps_service.get_node(user, pack, map_name, node_name)
-    print(node)
-
-    possible_items = item_service.possible_items(user, pack)
-    possible_monsters = monster_service.possible_monsters(user, pack)
-    possible_nodes = maps_service.possible_nodes(user, pack)
-
-    import json
-
-    x = {
-        "map_name": map_name,
-        "node_data": node.dictionary(),
-        "possible_items": possible_items,
-        "possible_monsters": possible_monsters,
-        "possible_nodes": possible_nodes,
-        "pack": pack,
-        "possible_permissions": {0: "Nothing"},
-        "possible_commands": {0: "Nothing"}
-    }
-    print(x)
-
-    x = json.dumps(x)
-
-    with open("data.json", "w") as file:
-        file.write(x)
-
-    return templates.TemplateResponse("itfd_creator/map_edit_node.html", {
+    print({
         "request": request,
         "index_tab": "itfd-creator",
         "user_name": user,
         "tools": itfd_creator.TOOLS,
-        "map_name": map_name,
-        "node_data": node,
-        "possible_items": possible_items,
-        "possible_monsters": possible_monsters,
-        "possible_nodes": possible_nodes,
         "pack": pack,
-        "possible_permissions": {0: "Nothing"},
-        "possible_commands": {0: "Nothing"}
+        "map_name": map_id,
+        "node_data": node.dictionary()
+    })
+    print(type(request),
+          type(user),
+          type(itfd_creator.TOOLS),
+          type(pack),
+          type(map_id),
+          type(node.dictionary()))
+
+    return templates.TemplateResponse("itfd_creator/map_node_form.html", {
+        "request": request,
+        "index_tab": "itfd-creator",
+        "user_name": user,
+        "tools": itfd_creator.TOOLS,
+        "pack": pack,
+        "map_name": map_id,
+        "node_id": node_id,
+        "node_data": node.dictionary(),
     })
 
 
-@router.post("/maps/{map_name}/edit-node/{node_name}")
-async def add_node(
+@router.post("/maps/{map_id}/edit-node/{node_id}")
+async def edit_node(
     request: Request,
     pack: str,
-    node_name: str,
-    map_name: str,
-    current_user: dict = Depends(auth.check_access_token),
-
-    # basic fields
-    name: str = Form(...),
-    category: int = Form(...),
-
-    # additional_data (only if category == 1)
-    additional_map_name: list[str] = Form(default=[]),
-    additional_node_name: list[str] = Form(default=[]),
-    additional_title: list[str] = Form(default=[]),
-    additional_permission: list[int] = Form(default=[]),
+    map_id: int,
+    node_id: int,
+    current_user: dict = Depends(auth.check_access_token)
 ):
-    form = await request.form()
-    sentences_first = form.getlist("sentences_first[]")
-    sentences_last = form.getlist("sentences_last[]")
-    connections_node_name = form.getlist("connections_node_name[]")
-    connections_title = form.getlist("connections_title[]")
-    connections_permission = [int(x) for x in
-                              form.getlist("connections_permission[]")]
-    items = list(map(int, form.getlist("items[]")))
-    monsters = form.getlist("monsters[]")
-    commands = [int(x) for x in form.getlist("commands[]")]
-
-    if current_user["error"]:
-        response = RedirectResponse(url="/you/login", status_code=303)
-        response.delete_cookie("access_token")
-        response.delete_cookie("user_name")
-        return response
-
-    if not pack:
-        return RedirectResponse(url="/itfd-creator/", status_code=303)
-
-    user = current_user["user_name"]
-
-    # Build connections
-    connections = list(zip(connections_node_name,
-                           connections_title,
-                           connections_permission))
-
-    # Build additional_data only if category == 1
-    additional_data = None
-    if category == 1:
-        additional_data = list(zip(
-            additional_map_name,
-            additional_node_name,
-            additional_title,
-            additional_permission
-        ))
-
-        print(user, pack, map_name, node_name,
-              name, category,
-              connections,
-              sentences_first, sentences_last,
-              monsters, items,
-              commands,
-              additional_data)
-
-    maps_service.edit_node(
-        user, pack, map_name, node_name,
-        name, category,
-        connections,
-        sentences_first, sentences_last,
-        monsters, items,
-        commands,
-        additional_data
-    )
-
-    map_data = maps_service.get(user, pack, map_name)
-
-    return templates.TemplateResponse("itfd_creator/map_show.html", {
-        "request": request,
-        "index_tab": "itfd-creator",
-        "user_name": user,
-        "tools": itfd_creator.TOOLS,
-        "map_name": map_name,
-        "map_data": map_data,
-        "pack": pack
-    })
+    insert_data = await request.json()
+    print(insert_data)
+    maps_service.edit_node(current_user["user_name"],
+                           pack,
+                           map_id,
+                           node_id,
+                           name=insert_data["name"],
+                           category=insert_data["category"],
+                           connections=insert_data["connections"],
+                           sentences_first=insert_data["sentences_first"],
+                           sentences_last=insert_data["sentences_last"],
+                           monsters=insert_data["monsters"],
+                           items=insert_data["items"],
+                           commands=insert_data["commands"],
+                           additional_data=insert_data["additional_data"])
+    return {
+        "status": "ok",
+        "redirect_url": f"/itfd-creator/packs/{pack}/maps/ {map_id}"
+    }
 
 
-@router.post("/maps/{map_name}/delete-node/{node_name}")
+@router.post("/maps/{map_id}/delete-node/{node_id}")
 async def delete_node(request: Request,
                       pack: str,
-                      node_name: str,
-                      map_name: str,
+                      node_id: int,
+                      map_id: int,
                       current_user: dict = Depends(auth.check_access_token)):
     if current_user["error"]:
         response = RedirectResponse(url="/you/login", status_code=303)
@@ -393,16 +281,46 @@ async def delete_node(request: Request,
 
     user = current_user["user_name"]
 
-    maps_service.delete_node(user, pack, map_name, node_name)
+    maps_service.delete_node(user, pack, map_id, node_id)
 
-    map_data = maps_service.get(user, pack, map_name)
+    map_data = maps_service.get(user, pack, map_id)
 
     return templates.TemplateResponse("itfd_creator/map_show.html", {
         "request": request,
         "index_tab": "itfd-creator",
         "user_name": user,
         "tools": itfd_creator.TOOLS,
-        "map_name": map_name,
+        "map_name": map_id,
         "map_data": map_data,
         "pack": pack
     })
+
+
+@router.get("/selectable-nodes", response_class=JSONResponse)
+async def possible_nodes(
+        pack: str,
+        current_user: dict = Depends(auth.check_access_token)
+) -> dict[str, int | dict[int, list[str | list]] | None]:
+    print(current_user)
+    if current_user["error"]:
+        return {
+            "error": 1,
+            "data": None
+        }
+
+    if not pack:
+        return {
+            "error": 2,
+            "data": None
+        }
+
+    user = current_user["user_name"]
+
+    maps_nodes: dict[int, list[str | list]] = maps_service.possible_nodes(user, pack)
+
+    print("maps-node: ", maps_nodes)
+    return {
+        "error": 0,
+        "data": maps_nodes
+    }
+

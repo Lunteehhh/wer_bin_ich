@@ -1,5 +1,7 @@
+import json
+
 from fastapi import APIRouter, Request, Depends, Form
-from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 
 from web_application.core import auth, itfd_creator
@@ -7,7 +9,7 @@ from web_application.services.itfd_creator import (monsters as monster_service,
                                                    items as item_service)
 
 router = APIRouter(
-    prefix="/itfd-creator/pack/{pack}",
+    prefix="/itfd-creator/packs/{pack}",
     tags=["itfd-creator", "monsters"]
 )
 
@@ -42,12 +44,13 @@ def monsters_index(request: Request,
     })
 
 
-@router.get("/{monster}",
+@router.get("/monsters/{monster}",
             response_class=HTMLResponse)
 def monster_show(request: Request,
                  monster: str,
                  pack: str,
                  current_user: dict = Depends(auth.check_access_token)):
+    return
     if current_user["error"]:
         response = RedirectResponse(url="/you/login", status_code=303)
         response.delete_cookie("access_token")
@@ -210,3 +213,36 @@ def delete_monster(monster: str,
     monster_service.delete(user, pack, monster)
 
     return RedirectResponse(url="/itfd-creator/monster", status_code=303)
+
+
+@router.get("/selectable-monsters")
+async def possible_monsters(
+    pack: str,
+    current_user: dict = Depends(auth.check_access_token)
+) -> dict[str, int | list[tuple[int, str]] | None]:
+
+    if current_user["error"]:
+        response = RedirectResponse(url="/you/login", status_code=303)
+        response.delete_cookie("access_token")
+        response.delete_cookie("user_name")
+        return {
+            "error": 1,
+            "data": None
+        }
+
+    if not pack:
+        return {
+            "error": 2,
+            "data": None
+        }
+
+    user = current_user["user_name"]
+
+    monsters = monster_service.possible_monsters(user, pack)
+
+    return {
+        "error": 0,
+        "data": monsters
+    }
+
+

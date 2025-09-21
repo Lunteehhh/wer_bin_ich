@@ -196,7 +196,7 @@ def delete_item(item_id: int,
 @router.get("/selectable-items")
 async def selectable_items(pack: str,
                            current_user: dict = Depends(auth.check_access_token)
-                           ) -> dict[str, list[tuple[int, str]] | None]:
+                           ) -> dict[str, int | list[tuple[int, str]] | None]:
     if current_user["error"]:
         response = RedirectResponse(url="/you/login", status_code=303)
         response.delete_cookie("access_token")

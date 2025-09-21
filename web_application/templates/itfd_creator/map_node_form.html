@@ -1,0 +1,99 @@
+{% extends "itfd_creator/base_tools.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/itfd_creator/map_node_form.css">
+
+<!--- Data
+    - 1. required
+    - 2. Optional--->
+<script>
+    window.appData = window.appData || {};
+
+    window.appData.packName = {{ pack|tojson }};
+    window.appData.mapName = {{ map_name|tojson }};
+    window.appData.nodeId = {{ node_id|tojson }};
+
+    window.appData.insertData = {{ node_data|tojson }};
+
+    console.log("inserttttttt: ");
+    console.log(window.appData.insertData);
+</script>
+{% endblock %}
+
+{% block tools_content %}
+<form id="node-form">
+    <!---Name--->
+    <p>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+    </p>
+    <!---Category--->
+    <p>
+        <label for="category">Category</label>
+        <select id="category" name="category">
+            <option value="0">Normal</option>
+            <option value="1">Connection to another map</option>
+            <option value="2">Monster_spawner</option>
+            <option value="3">Resource node</option>
+        </select>
+    </p>
+
+    <!---Connections--->
+    <p id="conn-container">
+        <span class="bold">Connection to another nodes</span>
+        <!---PLace for adding divs with JS--->
+        <br><button id="add-conn-btn" type="button" class="add-btn">Add Connection</button>
+    </p>
+
+    <!---SentenceFirst--->
+    <p id="sentences-first-container">
+        <span class="bold">Sentences First</span>
+        <!---PLace for adding divs with JS--->
+        <br><button id="add-sentence-first-btn" type="button" class="add-btn">Add Sentence</button>
+    </p>
+
+    <!---SentenceLast--->
+    <p id="sentences-last-container">
+        <span class="bold">Sentences Last</span>
+        <!---PLace for adding divs with JS--->
+        <br><button id="add-sentence-last-btn" type="button" class="add-btn">Add Sentence</button>
+    </p>
+
+    <!---Items--->
+    <p id="item-container">
+        <span class="bold center">Items</span>
+        <!---PLace for adding divs with JS--->
+        <br><button id="add-item-btn" type="button" class="add-btn">Add Item</button>
+    </p>
+
+    <!---Monsters--->
+    <p id="monsters-container">
+        <span class="bold">Monsters</span>
+        <!---PLace for adding divs with JS--->
+        <br><button id="add-monster-btn" type="button" class="add-btn">Add Monster</button>
+    </p>
+
+    <!---Commands--->
+    <p id="commands-container">
+        <span class="bold">Commands</span>
+        <!---PLace for adding divs with JS--->
+        <br><button id="add-command-btn" type="button" class="add-btn">Add Command</button>
+    </p>
+
+    <!---Additional Data--->
+    <p id="entrances-container" style="display: none">
+        <span class="bold">Entrances</span>
+        <!---PLace for adding divs with JS--->
+        <br><button id="add-entrance-btn" type="button" class="add-btn">Add Entrance</button>
+    </p>
+
+    <!---Others--->
+    <p id="error-message"></p>
+    <button id="submit-btn" type="submit" class="add-btn">Test</button>
+</form>
+{% endblock %}
+
+{% block script %}
+<script type="module" src="/static/js/itfd_creator/fetch_data.js" defer></script>
+<script type="module" src="/static/js/itfd_creator/map_node_form.js" defer></script>
+{% endblock %}

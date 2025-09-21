@@ -6,7 +6,7 @@
 <ul>
     {% for map_name in maps %}
     <li>
-        <a href="/itfd-creator/packs/{{ pack }}/maps/{{ map_name }}">{{ map_name }}</a>
+        <a href="/itfd-creator/packs/{{ pack }}/maps/{{ map_name[0] }}">{{ map_name[0] }}</a>
     </li>
     {% endfor %}
 </ul>

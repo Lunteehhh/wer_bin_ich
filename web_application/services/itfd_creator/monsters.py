@@ -1,243 +1,241 @@
 import sqlite3
 from collections import Counter
+from typing import TypeAlias
+
+
+Monster: TypeAlias = [str, int, int, int, list, list]
 
 
 def check_if_monster_exists(user: str,
-			 				pack_name: str,
-							monster: str):
-	path = f"data/users/{user}/itfd_creator/{pack_name}.db"
-	with sqlite3.connect(path) as conn:
-		cursor = conn.cursor()
+                            pack_name: str,
+                            monster_id: int):
+    path = f"data/users/{user}/itfd_creator/{pack_name}.db"
+    with sqlite3.connect(path) as conn:
+        cursor = conn.cursor()
 
-		cursor.execute("SELECT * FROM monsters WHERE name = ?", (monster,))
+        cursor.execute("SELECT * FROM monsters WHERE id = ?", (monster_id,))
 
-		result = cursor.fetchone()
+        result = cursor.fetchone()
 
-	return True if result else False
+    return True if result else False
 
 
 def _monster_from_db(name: str,
-					 health: int,
-					 strength: int,
-					 xp: int,
-					 items: str,
-					 sentences: str) -> [str, int, int, int, list, list]:
-	if items:
-		items: list[int] = list(map(int, items.split(";")))
-	else:
-		items = []
-	sentences: list[str] = sentences.split("\n") or []
+                     health: int,
+                     strength: int,
+                     xp: int,
+                     items: str,
+                     sentences: str) -> [str, int, int, int, list, list]:
+    if items:
+        items: list[int] = list(map(int, items.split(";")))
+    else:
+        items = []
+    sentences: list[str] = sentences.split("\n") or []
 
-	return name, health, strength, xp, items, sentences
+    return name, health, strength, xp, items, sentences
 
 
 def monsters(user: str,
-			 pack_name: str) -> list:
-	path = f"data/users/{user}/itfd_creator/{pack_name}.db"
-	with sqlite3.connect(path) as conn:
-		cursor = conn.cursor()
+             pack_name: str) -> list:
+    path = f"data/users/{user}/itfd_creator/{pack_name}.db"
+    with sqlite3.connect(path) as conn:
+        cursor = conn.cursor()
 
-		cursor.execute("SELECT * FROM monsters")
+        cursor.execute("SELECT * FROM monsters")
 
-		results = cursor.fetchall()
+        results = cursor.fetchall()
 
-	return [_monster_from_db(*mon) for mon in results]
+    return [_monster_from_db(*mon[1:]) for mon in results]
 
 
 def possible_monsters(user: str,
-					  pack_name: str) -> list:
-	path = f"data/users/{user}/itfd_creator/{pack_name}.db"
-	with sqlite3.connect(path) as conn:
-		cursor = conn.cursor()
+                      pack_name: str) -> list[[int, str]]:
+    path = f"data/users/{user}/itfd_creator/{pack_name}.db"
+    with sqlite3.connect(path) as conn:
+        cursor = conn.cursor()
 
-		cursor.execute("SELECT name FROM monsters")
+        cursor.execute("SELECT id, name FROM monsters")
 
-		results = cursor.fetchall()
+        results = cursor.fetchall()
 
-	return [name for name, in results]
+    return results
 
 
 def add(user: str,
-		pack_name: str,
-		name: str,
-		health: int,
-		strength: int,
-		xp: int = 0,
-		items: list[int] | None = None,
-		sentences: list[str] | None = None):
-	path = f"data/users/{user}/itfd_creator/{pack_name}.db"
-	with sqlite3.connect(path) as conn:
-		cursor = conn.cursor()
-		if items:
-			counted_items = Counter(items)
-			for item, count in counted_items.items():
-				cursor.execute(f"INSERT INTO _item_{item}_monster"
-							   f"(monster, count)"
-							   f"VALUES (?, ?)", (name, count))
+        pack_name: str,
+        name: str,
+        health: int,
+        strength: int,
+        xp: int = 0,
+        items: list[int] | None = None,
+        sentences: list[str] | None = None):
+    path = f"data/users/{user}/itfd_creator/{pack_name}.db"
+    with sqlite3.connect(path) as conn:
+        cursor = conn.cursor()
 
-			conn.commit()
+        cursor.execute("INSERT INTO monsters"
+                       "(name, health, strength, xp, items, sentences) "
+                       "VALUES (?, ?, ?, ?, ?, ?)",
+                       (name, health, strength, xp,
+                        ";".join(map(str, items)), "\n".join(sentences)))
 
-			cursor.execute(f"CREATE TABLE IF NOT EXISTS _monster_{name}("
-						   f"   map TEXT,"
-						   f"   node TEXT,"
-						   f"   count INTEGER)")
+        monster_id = cursor.lastrowid
 
-			conn.commit()
-		cursor = conn.cursor()
-		cursor.execute("INSERT INTO monsters"
-					   "(name, health, strength, xp, items, sentences) "
-					   "VALUES (?, ?, ?, ?, ?, ?)",
-					   (name, health, strength, xp,
-						";".join(map(str, items)), "\n".join(sentences)))
-		conn.commit()
+        if items:
+            counted_items = Counter(items)
+            for item, count in counted_items.items():
+                cursor.execute(f"INSERT INTO _item_{item}_monster"
+                               f"(monster, count)"
+                               f"VALUES (?, ?)", (monster_id, count))
+
+            cursor.execute(f"CREATE TABLE IF NOT EXISTS _monster_{name}("
+                           f"   map INT,"
+                           f"   node INT,"
+                           f"   count INT)")
+
+        conn.commit()
 
 
 def get(user: str,
-		pack_name: str,
-		name: str):
-	path = f"data/users/{user}/itfd_creator/{pack_name}.db"
-	with sqlite3.connect(path) as conn:
-		cursor = conn.cursor()
+        pack_name: str,
+        monster_id: int) -> Monster:
+    path = f"data/users/{user}/itfd_creator/{pack_name}.db"
+    with sqlite3.connect(path) as conn:
+        cursor = conn.cursor()
 
-		cursor.execute("SELECT * FROM monsters WHERE name = ?", (name,))
+        cursor.execute("SELECT * FROM monsters WHERE id = ?", (monster_id,))
 
-		result = cursor.fetchone()
+        result = cursor.fetchone()
 
-	return _monster_from_db(*result)
+    if result:
+        return _monster_from_db(*result)
+    else:
+        return None
 
 
 def edit(user: str,
-		 pack_name: str,
-		 name: str,
-		 health: int,
-		 strength: int,
-		 xp: int = 0,
-		 items: list[int] | None = None,
-		 sentences: list[str] | None = None,
-		 new_name: str = None):
-	def update_linkage(item_ids: list[int],
-					   monster: str,
-					   new_monster: str | None = None):
-		nonlocal cursor
+         pack_name: str,
+         monster_id: int,
+         name: str,
+         health: int,
+         strength: int,
+         xp: int = 0,
+         items: list[int] | None = None,
+         sentences: list[str] | None = None):
+    def update_linkage():
+        nonlocal cursor
 
-		new_monster = new_monster or monster
+        cursor.execute(f"SELECT items FROM monsters WHERE id = ?",
+                       (monster_id,))
 
-		cursor.execute(f"SELECT items FROM monsters WHERE name = ?",
-					   (monster,))
+        fetched_items, = cursor.fetchone()
+        fetched_items = set(fetched_items.split(";"))
 
-		fetched_items, = cursor.fetchone()
-		fetched_items = set(fetched_items.split(";"))
+        for item_id in fetched_items:
+            cursor.execute(f"DELETE FROM _item_{item_id}_monster "
+                           f"WHERE monster = ?", (monster_id,))
 
-		for item_id in fetched_items:
-			cursor.execute(f"DELETE FROM _item_{item_id}_monster "
-						   f"WHERE monster = ?", (monster,))
+        counted_items = Counter(items)
+        for item_id, count in counted_items.items():
+            cursor.execute(f"INSERT INTO _item_{item_id}_monster"
+                           f"(monster, count)"
+                           f"VALUES (?, ?)",
+                           (monster_id, count))
 
-		counted_items = Counter(item_ids)
-		for item_id, count in counted_items.items():
-			cursor.execute(f"INSERT INTO _item_{item_id}_monster"
-						   f"(monster, count)"
-						   f"VALUES (?, ?)",
-						   (new_monster, count))
+    path = f"data/users/{user}/itfd_creator/{pack_name}.db"
+    with sqlite3.connect(path) as conn:
+        cursor = conn.cursor()
 
-	def linkage_change_items(monster: str,
-							 new_monster: str):
-		nonlocal cursor
+        update_linkage()
 
-		cursor.execute(f"SELECT items FROM monsters "
-							f"WHERE name = ?",
-					   (monster,))
+        if sentences:
+            sentences: str = "\n".join(sentences)
 
-		fetched_items, = cursor.fetchone()
-		fetched_items = set(fetched_items.split(";"))
+        cursor.execute("UPDATE monsters SET"
+                       "    name = ?, "
+                       "    health = ?, "
+                       "    strength = ?, "
+                       "    xp = ?, "
+                       "    items = ?, "
+                       "    sentences = ? "
+                       "WHERE id = ?",
+                       (name, health, strength, xp, items, sentences,
+                        monster_id))
 
-		for _item in fetched_items:
-			cursor.execute(f"UPDATE _item_{_item}_monster "
-						   f"SET monster = ?"
-						   f"WHERE monster = ?",
-						   (new_monster, monster))
-
-	path = f"data/users/{user}/itfd_creator/{pack_name}.db"
-	with sqlite3.connect(path) as conn:
-		cursor = conn.cursor()
-
-		if items:
-			update_linkage(items, name, new_name)
-			items: str = ";".join(map(str, items))
-		elif new_name:
-			linkage_change_items(name, new_name)
-			cursor.execute(f"ALTER TABLE _monster_{name} RENAME TO _monster_{new_name}")
-
-		if sentences:
-			sentences: str = "\n".join(sentences)
-
-		cursor.execute("UPDATE monsters SET"
-					   "    name = COALESCE(?, name), "
-					   "    health = COALESCE(?, health), "
-					   "    strength = COALESCE(?, strength), "
-					   "    xp = COALESCE(?, xp), "
-					   "    items = COALESCE(?, items), "
-					   "    sentences = COALESCE(?, sentences) "
-					   "WHERE name = ?",
-					   (new_name, health, strength, xp, items, sentences, name))
-
-		conn.commit()
+        conn.commit()
 
 
 def delete(user: str,
-		   pack_name: str,
-		   monster: str):
-	path = f"data/users/{user}/itfd_creator/{pack_name}.db"
-	with sqlite3.connect(path) as conn:
-		cursor = conn.cursor()
+           pack_name: str,
+           monster_id: int):
+    path = f"data/users/{user}/itfd_creator/{pack_name}.db"
+    with sqlite3.connect(path) as conn:
+        cursor = conn.cursor()
 
-		# delete item linkage to this monster
-		cursor.execute(f"SELECT items FROM monsters WHERE name = ?",
-					   (monster,))
+        # delete item linkage to this monster
+        cursor.execute(f"SELECT items FROM monsters WHERE id = ?",
+                       (monster_id,))
 
-		fetched_items = cursor.fetchone()
-		if fetched_items[0] != "":
-			fetched_items = set(fetched_items[0].split(";"))
+        fetched_items = cursor.fetchone()
+        if fetched_items[0] != "":
+            fetched_items = set(fetched_items[0].split(";"))
 
-			for item_id in fetched_items:
-				cursor.execute(f"DELETE FROM _item_{item_id}_monster "
-							   f"WHERE monster = ?", (monster,))
+            for item_id in fetched_items:
+                cursor.execute(f"DELETE FROM _item_{item_id}_monster "
+                               f"WHERE monster = ?", (monster_id,))
 
-		# delete linkage and monsters in the map
-		cursor.execute(f"SELECT map, node"
-					   f" FROM _monster_{monster}")
-		result = cursor.fetchall()
+        # delete linkage and monsters in the map
+        cursor.execute(f"SELECT map, node"
+                       f" FROM _monster_{monster_id}")
+        result = cursor.fetchall()
 
-		map_name: str
-		for map_name, node_name in result:
-			cursor.execute(f"SELECT monsters FROM map_{map_name} "
-						   f"WHERE name = ?", (node_name,))
+        monster_id_str = str(monster_id)
+        for map_id, node_id in result:
+            cursor.execute(f"SELECT monsters FROM map_{map_id} "
+                           f"WHERE id = ?", (node_id,))
 
-			fetched_monsters, = cursor.fetchone()
-			fetched_monsters = fetched_monsters.split(";")
-			fetched_monsters = [x for x in fetched_monsters if x != monster]
-			fetched_monsters = ";".join(fetched_monsters)
+            fetched_monsters, = cursor.fetchone()
+            fetched_monsters = fetched_monsters.split(";")
+            fetched_monsters = [
+                x for x in fetched_monsters
+                if x != monster_id_str
+            ]
+            fetched_monsters = ";".join(fetched_monsters)
 
-			cursor.execute(f"UPDATE map_{map_name} "
-						   "SET monsters = ?"
-						   f"WHERE name = ?",
-						   (fetched_monsters, node_name))
+            cursor.execute(f"UPDATE map_{map_id} "
+                           "SET monsters = ?"
+                           f"WHERE id = ?",
+                           (fetched_monsters, node_id))
 
-		# delete linkage table
-		cursor.execute(f"DROP TABLE _monster_{monster}")
+        # delete linkage table
+        cursor.execute(f"DROP TABLE _monster_{monster_id}")
 
-		# delete monster
-		cursor.execute("DELETE FROM monsters WHERE name = ?", (monster,))
-		conn.commit()
+        # delete monster
+        cursor.execute("DELETE FROM monsters WHERE id = ?", (monster_id,))
+        conn.commit()
 
 
 def get_linkage(user: str,
                 pack_name: str,
-                monster: str) -> list:
-	path = f"data/users/{user}/itfd_creator/{pack_name}.db"
-	with sqlite3.connect(path) as conn:
-		cursor = conn.cursor()
+                monster_id: str) -> list[tuple[int, int, int]]:
+    path = f"data/users/{user}/itfd_creator/{pack_name}.db"
+    with sqlite3.connect(path) as conn:
+        cursor = conn.cursor()
 
-		cursor.execute(f"SELECT * FROM _monster_{monster}")
-		linkage_maps = cursor.fetchall()
+        cursor.execute(f"SELECT * FROM _monster_{monster_id}")
+        linkage_maps = cursor.fetchall()
 
-	return linkage_maps
+    return linkage_maps
+
+
+def selectable_monsters(user: str,
+                        pack_name: str) -> list[tuple[int, str]]:
+    path = f"data/users/{user}/itfd_creator/{pack_name}.db"
+    with sqlite3.connect(path) as conn:
+        cursor = conn.cursor()
+
+        cursor.execute(f"SELECT id, name FROM monsters")
+        results = cursor.fetchall()
+
+    return results
+

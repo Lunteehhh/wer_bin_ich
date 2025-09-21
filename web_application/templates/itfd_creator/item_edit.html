@@ -66,7 +66,27 @@ function loadExtraFields(category) {
                 <input type="number" id="e" name="e" value="{{ item[7] }}">
             </div>
         `;
-    }
+    } else if (category === '2') {
+        extraFields.innerHTML = `
+            <div>
+                <label for="a">Durability:</label>
+                <input type="number" id="a" name="a" value="{{ item[3] }}">
+            </div>
+            <div>
+                <label for="b">Damage:</label>
+                <input type="number" id="b" name="b" value="{{ item[4] }}">
+            </div>
+            <label for="c">Type:</label>
+            <select id="c" name="c">
+                <option value="0" {% if item[5] == 0 %}selected{% endif %}>Sword</option>
+                <option value="1" {% if item[5] == 1 %}selected{% endif %}>Bow</option>
+                <option value="2" {% if item[5] == 2 %}selected{% endif %}>Wand</option>
+            </select>
+            <div>
+                <label for="e">Command:</label>
+                <input type="number" id="e" name="e" value="{{ item[7] }}">
+            </div>
+        `;
     // ... weitere Kategorien wie bei add_item.html ergänzen
 }
 

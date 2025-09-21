@@ -1,6 +1,7 @@
 import sqlite3
 from pathlib import Path
 import os
+from web_application.services.itfd_creator import maps as maps_service
 
 
 def get_packs(user: str) -> list[str]:
@@ -28,15 +29,17 @@ def add_new_pack(user: str, pack_name: str):
                        "    e INTEGER)")
 
         cursor.execute("CREATE TABLE IF NOT EXISTS monsters("
-                       "    name TEXT PRIMARY KEY,"
+                       "    id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                       "    name TEXT,"
                        "    health INT,"
                        "    strength INT,"
                        "    xp INT,"
                        "    items TEXT,"
                        "    sentences TEXT)")
 
-        cursor.execute("CREATE TABLE IF NOT EXISTS maps("
-                       "    name TEXT PRIMARY KEY)")
+        maps_service.init_table(user, pack_name)
+
+
 
 
 def delete_pack(user: str, pack_name: str):

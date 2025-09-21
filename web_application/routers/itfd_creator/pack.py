@@ -1,5 +1,7 @@
+import json
+
 from fastapi import APIRouter, Form, Depends, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 
 from web_application.core import auth, itfd_creator
@@ -126,3 +128,63 @@ def pack_delete_post(request: Request,
         "tools": itfd_creator.TOOLS,
         "pack": pack
     })
+
+
+@router.get("/packs/{pack}/selectable-commands", response_class=JSONResponse)
+async def selectable_items(
+    pack: str,
+    current_user: dict = Depends(auth.check_access_token)
+) -> dict[str, int | dict[int, str] | None]:
+
+    if current_user["error"]:
+        response = RedirectResponse(url="/you/login", status_code=303)
+        response.delete_cookie("access_token")
+        response.delete_cookie("user_name")
+        return {
+            "error": 401,
+            "data": None
+        }
+
+    if not pack:
+        return {
+            "error": 400,
+            "data": None
+        }
+
+    return {
+        "error": 0,
+        "data": {
+            0: "---",
+            1: "vanish",
+            2: "do something"
+        }
+    }
+
+
+@router.get("/packs/{pack}/selectable-permissions", response_class=JSONResponse)
+async def selectable_permissions(
+    pack: str,
+    current_user: dict = Depends(auth.check_access_token)
+) -> dict[str, int | dict[int, str] | None]:
+
+    if current_user["error"]:
+        return {
+            "error": 1,
+            "data": None
+        }
+
+    if not pack:
+        return {
+            "error": 2,
+            "data": None
+        }
+
+    return {
+        "error": 0,
+        "data": {
+            0: "Nothing",
+            1: "have a boat",
+            2: "fire resistance",
+            3: "have skill 1"
+        }
+    }
