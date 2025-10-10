@@ -1,12 +1,19 @@
 {% extends "base.html" %}
 
 {% block head %}
+    <title>ITFD Creator - {{ pack }} - Items</title>
+    <link rel="stylesheet" href="/static/css/itfd_creator/base_tools.css">
+    {% block extra_head %}{% endblock %}
 {% endblock %}
 
 {% block content %}
 <div class="tools-container">
     <nav class="toolbar">
+        <h3>Tools</h3>
         <ul>
+            <li class="menu-item">
+                <a href="/itfd-creator/packs/{{ pack }}">Pack Overview</a>
+            </li>
             <li class="menu-item">
                 <a href="/itfd-creator/packs/{{ pack }}/items">Items</a>
             </li>
@@ -16,10 +23,37 @@
             <li class="menu-item">
                 <a href="/itfd-creator/packs/{{ pack }}/maps">Maps</a>
             </li>
+            <br>
+            <li class="menu-item"> 
+                <ul>
+                    <li class="menu-item">
+                        <a href="/itfd-creator/packs/{{ pack }}/luck-num">Luck Num</a>
+                    </li>
+                </ul>
+            </li>
+            <br>
+            <li>
+                <a href="/itfd-creator">Select other pack</a>
+            </li>
         </ul>
     </nav>
-
-    {% block tools_content %}{% endblock %}
+    <div class="tools-content">
+        {% block tools_content %}{% endblock %}
+    </div>
+    <nav class="last-used">
+        <h3>Navigation</h3>
+        <ul>
+            <li>
+                <a href="/itfd-creator/packs/{{ pack }}">Back to Pack</a>
+            </li>
+            <li>
+                <a href="/itfd-creator">Back to Packs</a>
+            </li>
+            <li>
+                <a href="/itfd-creator/logout">Logout</a>
+            </li>
+        </ul>
+    </nav>
 </div>
 {% endblock %}
 

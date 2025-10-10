@@ -5,38 +5,47 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3ba46aa4-caa4-4339-9b4f-74f8b4b821ba" name="Changes" comment="Initial commit">
-      <change afterPath="$PROJECT_DIR$/tests/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/services/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/services/itfd_creator/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/services/itfd_creator/conftest.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/services/itfd_creator/test_maps.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/sql/init_itfd_creator_test_pack.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web_application/static/css/itfd_creator/map_node_form.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web_application/static/image/about.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web_application/static/image/android-chrome-192x192.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web_application/static/image/android-chrome-512x512.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web_application/static/image/apple-touch-icon.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web_application/static/image/favicon-16x16.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web_application/static/image/favicon-32x32.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web_application/static/image/favicon.ico" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web_application/static/image/site.webmanifest" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web_application/static/js/itfd_creator/fetch_data.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web_application/static/js/itfd_creator/map_node_form.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/map_node_form.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/maps/map_node_linkage.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web_application/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/.test_data/templates/empty_pack.db" beforeDir="false" afterPath="$PROJECT_DIR$/tests/templates/empty_pack.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/.test_data/templates/pack.db" beforeDir="false" afterPath="$PROJECT_DIR$/tests/templates/pack.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/services/itfd_creator/test_maps.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/services/itfd_creator/test_maps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/sql/init_itfd_creator_test_pack.sql" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/web_application/routers/itfd_creator/items.py" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/routers/itfd_creator/items.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web_application/routers/itfd_creator/maps.py" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/routers/itfd_creator/maps.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web_application/routers/itfd_creator/monsters.py" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/routers/itfd_creator/monsters.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web_application/routers/itfd_creator/pack.py" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/routers/itfd_creator/pack.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_application/services/itfd_creator/help.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_application/services/itfd_creator/items.py" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/services/itfd_creator/items.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web_application/services/itfd_creator/maps.py" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/services/itfd_creator/maps.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web_application/services/itfd_creator/monsters.py" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/services/itfd_creator/monsters.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web_application/services/itfd_creator/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/services/itfd_creator/utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web_application/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_application/static/js/itfd_creator/fetch_data.js" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/static/js/itfd_creator/fetch_data.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_application/static/js/itfd_creator/map_node_form.js" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/static/js/itfd_creator/map_node_form.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web_application/templates/itfd_creator/base_tools.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/base_tools.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web_application/templates/itfd_creator/item_edit.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/item_edit.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web_application/templates/itfd_creator/map_page.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/map_page.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web_application/templates/itfd_creator/map_show.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/map_show.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_application/templates/itfd_creator/item_add.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/items/item_add.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_application/templates/itfd_creator/item_edit.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/items/item_edit.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_application/templates/itfd_creator/item_index.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/items/item_index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_application/templates/itfd_creator/item_show_-1.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/items/item_show_-1.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_application/templates/itfd_creator/item_show_0.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/items/item_show_0.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_application/templates/itfd_creator/item_show_1.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/items/item_show_1.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_application/templates/itfd_creator/item_show_10.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/items/item_show_10.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_application/templates/itfd_creator/item_show_11.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/items/item_show_11.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_application/templates/itfd_creator/item_show_12.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/items/item_show_12.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_application/templates/itfd_creator/item_show_2.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/items/item_show_2.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_application/templates/itfd_creator/item_show_20.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/items/item_show_20.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_application/templates/itfd_creator/map_add.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/maps/map_add.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_application/templates/itfd_creator/map_add_node.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/maps/map_add_node.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_application/templates/itfd_creator/map_edit_node.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/maps/map_edit_node.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_application/templates/itfd_creator/map_node_form.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/maps/map_node_form.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_application/templates/itfd_creator/map_page.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/maps/map_page.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_application/templates/itfd_creator/map_show.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/maps/map_show.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_application/templates/itfd_creator/monster_add.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/monsters/monster_add.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_application/templates/itfd_creator/monster_edit.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/monsters/monster_edit.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_application/templates/itfd_creator/monster_index.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/monsters/monster_index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_application/templates/itfd_creator/monster_show.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/monsters/monster_show.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_application/templates/itfd_creator/pack_index.html" beforeDir="false" afterPath="$PROJECT_DIR$/web_application/templates/itfd_creator/pack_index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,8 +55,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="HTML File" />
         <option value="Python Script" />
+        <option value="HTML File" />
       </list>
     </option>
   </component>
@@ -85,22 +94,29 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "DefaultHtmlFileTemplate": "HTML File",
-    "Python tests.Python tests in test_maps.py.executor": "Run",
-    "Python.friends.executor": "Run",
-    "Python.main debug.executor": "Run",
-    "Python.main.executor": "Run",
-    "Python.maps.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "itfd__creator",
-    "last_opened_file_path": "/Users/lunte/PycharmProjects/wer_bin_ich/web_application/static/image",
-    "settings.editor.selected.configurable": "preferences.pluginManager"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;Python tests.Python tests in test_maps.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python.friends.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main debug.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;Python.maps.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;itfd__creator&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/lunte/PycharmProjects/wer_bin_ich&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/web_application/static/image" />
@@ -110,11 +126,11 @@
       <recent name="$PROJECT_DIR$/templates/itfd_creator" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/web_application/templates/itfd_creator/items" />
+      <recent name="$PROJECT_DIR$/web_application/templates/itfd_creator/monsters" />
+      <recent name="$PROJECT_DIR$/tests" />
+      <recent name="$PROJECT_DIR$/tests/.test_data/templates" />
       <recent name="$PROJECT_DIR$/tests/sql" />
-      <recent name="$PROJECT_DIR$/web_application/services" />
-      <recent name="$PROJECT_DIR$/web_application/routers" />
-      <recent name="$PROJECT_DIR$" />
-      <recent name="$PROJECT_DIR$/web_application/routers/itfd_creator" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -124,7 +140,7 @@
       </set>
     </option>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.main">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -133,7 +149,6 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="SDK_NAME" value="Python 3.12 (wer_bin_ich)" />
       <option name="WORKING_DIRECTORY" value="" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
@@ -157,7 +172,6 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="SDK_NAME" value="Python 3.12 (wer_bin_ich)" />
       <option name="WORKING_DIRECTORY" value="" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
@@ -180,7 +194,6 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="SDK_NAME" value="Python 3.12 (wer_bin_ich)" />
       <option name="WORKING_DIRECTORY" value="" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
@@ -194,13 +207,27 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="Python tests in test_maps.py" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+      <module name="wer_bin_ich" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests/services/itfd_creator" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="false" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/services/itfd_creator/test_maps.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
     <configuration name="pytest in /" type="tests" factoryName="py.test" nameIsGenerated="true">
       <module name="wer_bin_ich" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <option name="SDK_HOME" value="" />
-      <option name="SDK_NAME" value="Python 3.12 (wer_bin_ich)" />
       <option name="WORKING_DIRECTORY" value="" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
@@ -216,7 +243,13 @@
       <item itemvalue="Python.main" />
       <item itemvalue="Python.main debug" />
       <item itemvalue="Python tests.pytest in /" />
+      <item itemvalue="Python tests.Python tests in test_maps.py" />
     </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python tests.Python tests in test_maps.py" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -233,6 +266,8 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1748878975977</updated>
+      <workItem from="1759508538323" duration="9314000" />
+      <workItem from="1759584895131" duration="3730000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -394,8 +429,27 @@
       <option name="project" value="LOCAL" />
       <updated>1756393422808</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="Initial commit">
+      <option name="closed" value="true" />
+      <created>1758455082580</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1758455082580</updated>
+    </task>
+    <task id="LOCAL-00022" summary="Initial commit">
+      <option name="closed" value="true" />
+      <created>1758455825417</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1758455825417</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">

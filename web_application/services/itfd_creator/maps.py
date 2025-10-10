@@ -1,3 +1,4 @@
+import os
 import sqlite3
 from dataclasses import dataclass
 
@@ -95,7 +96,7 @@ def _convert_string_to_connections(connections: str) -> list[[int, str, int]]:
 
 def _convert_string_to_entrances(entrances_string: str
                                  ) -> Entrances:
-    if entrances_string == "":
+    if not entrances_string:
         return []
 
     entrances: list[[int, int, str, int]] = []
@@ -206,6 +207,9 @@ def get(user: str,
     with sqlite3.connect(path) as conn:
         cursor = conn.cursor()
 
+        print("dcaujcdoaehqfnoehnqfiodqahiodqadqafdq")
+        print(cursor.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall())
+
         cursor.execute(f"SELECT * FROM map_{map_id}")
 
         results = cursor.fetchall()
@@ -233,6 +237,8 @@ def add_map(user: str,
             pack_name: str,
             map_name: str) -> int:
     path = f"{DATA_PATH}/users/{user}/itfd_creator/{pack_name}.db"
+
+    print(f"\nLIST DIR = {os.listdir(f"{DATA_PATH}/users/{user}")}")
     with sqlite3.connect(path) as conn:
         cursor = conn.cursor()
 
@@ -263,16 +269,19 @@ def add_node(user: str,
              map_id: int,
              name: str,
              category: int,
-             connections: list[[str, str, int]] | None = None,
+             connections: list[list[str, str, int | str]] | None = None,
              sentences_first: list[str] = None,
              sentences_last: list[str] = None,
              monsters: list[int] = None,
              items: list[int] = None,
              commands: list[int] = None,
              additional_data: any = None) -> int:
+
+    print(connections)
     path = f"{DATA_PATH}/users/{user}/itfd_creator/{pack_name}.db"
 
     # preparing for sql injections
+    category = int(category)
     _connections = _convert_connections_to_string(connections)
     _sentences_first = "\n".join(sentences_first) if sentences_first else None
     _sentences_last = "\n".join(sentences_last) if sentences_last else None
@@ -311,7 +320,7 @@ def add_node(user: str,
                 cursor.execute(
                     f"INSERT INTO _item_{item_id}_map (map, node, count) "
                     f"VALUES (?, ?, ?)",
-                    (map_id, name, count))
+                    (map_id, node_id, count))
 
         if monsters:
             counted_monsters = Counter(monsters)
@@ -322,18 +331,22 @@ def add_node(user: str,
                                (map_id, node_id, count))
 
         for linked_node_id, _, _ in connections:
+            print(connections)
+            print(f"INSERT INTO _map_{map_id}_{linked_node_id}"
+                  "(map, node) VALUES (?, ?)")
             cursor.execute(f"INSERT INTO _map_{map_id}_{linked_node_id}"
-                           f"(map, node) VALUES (?, ?)",
+                           "(map, node) VALUES (?, ?)",
                            (map_id, node_id))
 
         if category == 1:
-            for linked_map_id, linked_node_id, _, _ in connections:
+            print(_additional_data)
+            for linked_map_id, linked_node_id, _, _ in additional_data:
                 cursor.execute(f"INSERT "
                                f"INTO _map_{linked_map_id}_{linked_node_id}"
                                f"(map, node) VALUES (?, ?)",
                                (map_id, node_id))
 
-            conn.commit()
+        conn.commit()
 
     return node_id
 
@@ -351,6 +364,40 @@ def edit_node(user: str,
               items: list[int] | None = None,
               commands: list[int] | None = None,
               additional_data: any = None):
+
+    print("\n\naddditionalDATA", additional_data)
+
+    def update_linkage_nodes():
+        nonlocal cursor, map_id, node_id, connections, category, additional_data
+
+        cursor.execute("SELECT connections, category, additional_data "
+                       f"FROM map_{map_id} WHERE id = ?", (node_id,))
+
+        old_connections, old_category, old_additional_data = cursor.fetchone()
+
+        old_connections = _convert_string_to_connections(old_connections)
+        for node, _, _ in old_connections:
+            cursor.execute(f"DELETE FROM _map_{map_id}_{node} "
+                           f"WHERE map = ? AND node = ?", (map_id, node_id))
+
+        print(connections)
+        for node, _, _ in connections:
+            cursor.execute(f"INSERT INTO _map_{map_id}_{node}(map, node) "
+                           f"VALUES (?, ?)", (map_id, node_id))
+
+        if old_category == 1:
+            old_additional_data = _convert_string_to_entrances(
+                old_additional_data)
+
+            for _map, node, _, _ in old_additional_data:
+                cursor.execute(f"DELETE FROM _map_{_map}_{node} "
+                               f"WHERE map = ? AND node = ?", (map_id, node_id))
+
+        if category == 1:
+            for _map, node, _, _ in additional_data:
+                cursor.execute(f"INSERT INTO _map_{_map}_{node}(map, node) "
+                               f"VALUES (?, ?)", (map_id, node_id))
+
     def update_linkage_monster():
         nonlocal cursor, map_id, node_id, name, monsters
 
@@ -398,6 +445,7 @@ def edit_node(user: str,
     with sqlite3.connect(path) as conn:
         cursor = conn.cursor()
 
+        update_linkage_nodes()
         update_linkage_monster()
         update_linkage_item(items)
 
@@ -433,20 +481,21 @@ def edit_node(user: str,
 
 def delete_node(user: str,
                 pack_name: str,
-                map_id: str,
-                node_id: str):
+                map_id: int,
+                node_id: int):
     path = f"{DATA_PATH}/users/{user}/itfd_creator/{pack_name}.db"
     with sqlite3.connect(path) as conn:
         cursor = conn.cursor()
 
         # update items and monster linkage
-        cursor.execute(f"SELECT monsters, "
-                       f"items, category, connections, entrances "
+        cursor.execute("SELECT monsters, "
+                       "items, category, connections, additional_data "
                        f"FROM map_{map_id}"
-                       " WHERE name = ?",
+                       " WHERE id = ?",
                        (node_id,))
 
-        monsters, items, category, connections, entrances = cursor.fetchone()
+        data = cursor.fetchone()
+        monsters, items, category, connections, additional_data = data
 
         if monsters:
             monsters = set(monsters.split(";"))
@@ -462,7 +511,7 @@ def delete_node(user: str,
                                f"WHERE map = ? AND node = ?",
                                (map_id, node_id))
 
-        # update connections and entrances from other nodes to this
+        # update connections and additional_data from other nodes to this
         cursor.execute(f"SELECT * FROM _map_{map_id}_{node_id}")
         results = cursor.fetchall()
 
@@ -471,55 +520,57 @@ def delete_node(user: str,
                 cursor.execute(f"SELECT connections "
                                f"FROM map_{linked_by_map}"
                                " WHERE id = ?", (linked_by_node,))
-                connections = cursor.fetchone()
+                connections_2 = cursor.fetchone()[0]
 
-                connections = _convert_string_to_connections(connections)
-                connections = [
-                    node for node in connections if node[0] != node_id
+                connections_2 = _convert_string_to_connections(connections_2)
+                connections_2 = [
+                    node for node in connections_2 if node[0] != node_id
                 ]
-                connections = _convert_connections_to_string(connections)
+                connections_2 = _convert_connections_to_string(connections_2)
 
                 cursor.execute(f"UPDATE map_{linked_by_map} "
                                f"SET connections = ?"
                                " WHERE name = ?",
-                               (connections, linked_by_node))
+                               (connections_2, linked_by_node))
 
             else:
                 cursor.execute(f"SELECT additional_data "
                                f"FROM map_{linked_by_map}"
                                " WHERE id = ?", (linked_by_node,))
-                entrances = cursor.fetchone()
+                additional_data = cursor.fetchone()
 
-                entrances = _convert_string_to_entrances(entrances)
-                entrances = [
-                    ent for ent in entrances
+                additional_data = _convert_string_to_entrances(additional_data)
+                additional_data = [
+                    ent for ent in additional_data
                     if ent[0] != map_id and ent[1] != node_id
                 ]
-                entrances = _convert_entrances_to_string(entrances)
+                additional_data = _convert_entrances_to_string(additional_data)
 
                 cursor.execute(f"UPDATE map_{linked_by_map}"
                                " SET additional_data = ?"
-                               " WHERE name = ?",
-                               (entrances, linked_by_node))
+                               " WHERE id = ?",
+                               (additional_data, linked_by_node))
 
         cursor.execute(f"DROP TABLE _map_{map_id}_{node_id}")
 
-        # update connections and entrances this to others
+        # update connections and additional_data this to other nodes
+        print(f"\n connections: {connections}")
         connections = _convert_string_to_connections(connections)
+        print(f"\n connections: {connections}")
         for connected_node, _, _ in connections:
             cursor.execute(f"DELETE FROM _map_{map_id}_{connected_node}"
                            " WHERE map = ? AND node = ?", (map_id, node_id))
 
         if category == 1:
-            entrances = _convert_string_to_entrances(entrances)
-            for connected_map, connected_node, _, _ in entrances:
+            additional_data = _convert_string_to_entrances(additional_data)
+            for connected_map, connected_node, _, _ in additional_data:
                 cursor.execute(f"DELETE "
                                f"FROM _map_{connected_map}_{connected_node}"
                                " WHERE map = ? AND node = ?", (map_id, node_id))
 
         # delete main
         cursor.execute(f"DELETE FROM map_{map_id} "
-                       f"WHERE name = ?", (node_id,))
+                       f"WHERE id = ?", (node_id,))
 
         conn.commit()
 
@@ -542,5 +593,46 @@ def possible_nodes(user: str,
                 nodes
             ]
 
+    print("YEEEEES")
     print(possible_nodes_dict)
     return possible_nodes_dict
+
+
+def get_node_name(user: str,
+                  pack_name: str,
+                  map_id: int,
+                  node_id: int) -> str:
+
+    path = f"{DATA_PATH}/users/{user}/itfd_creator/{pack_name}.db"
+    with sqlite3.connect(path) as conn:
+        cursor = conn.cursor()
+
+        name = cursor.execute(f"SELECT name FROM map_{map_id} WHERE id = ?",
+                              (node_id,)).fetchone()[0]
+
+    return name
+
+
+def get_node_linkages(user: str,
+                      pack_name: str,
+                      map_id: int,
+                      node_id: int) -> list[tuple[int, int, str]]:
+    collected_linkages = []
+
+    path = f"{DATA_PATH}/users/{user}/itfd_creator/{pack_name}.db"
+    with sqlite3.connect(path) as conn:
+        cursor = conn.cursor()
+
+        fetched_linkages: list[tuple[int, int]] = cursor.execute(
+            f"SELECT * FROM _map_{map_id}_{node_id}"
+        ).fetchall()
+
+        for link_map_id, link_node_id in fetched_linkages:
+            node_name = cursor.execute(
+                f"SELECT name FROM map_{link_map_id} WHERE id = ?",
+                (link_node_id,)
+            ).fetchone()[0]
+
+            collected_linkages.append((link_map_id, link_node_id, node_name))
+
+    return collected_linkages

@@ -230,3 +230,167 @@ def get_linkage(user: str,
     return linkage_monsters, linkage_maps
 
 
+"""
+Luck Num
+################################################################################
+"""
+
+
+def _convert_mln_to_string(minor_luck_nums: list[int]) -> str:
+    return ";".join(map(str, minor_luck_nums))
+
+
+def _convert_string_to_mln(string: str) -> list[int]:
+    if not string:
+        return []
+    return list(map(int, string.split(";")))
+
+
+def _convert_items_list_to_string(items_list: list[[int, int]]) -> str:
+    items_list = [f"{weight};{item}" for weight, item in items_list]
+    return "\n".join(items_list)
+
+
+def _convert_string_to_items_list(string: str) -> list[[int, int]]:
+    if not string:
+        return []
+    items_list = string.split("\n")
+    items_list = map(lambda x: x.split(";"), items_list)
+
+    return [(int(weight), int(item)) for weight, item in items_list]
+
+
+def _luck_num_from_db(data: tuple[int, str, str]
+                      ) -> tuple[int, list[int], list[[int, int]]]:
+    num, minors, drops = data
+
+    minors = _convert_string_to_mln(minors)
+    drops = _convert_string_to_items_list(drops)
+
+    return num, minors, drops
+
+
+def get_luck_num(pack: str,
+                 user: str,
+                 luck_num: int):
+    path = f"data/users/{user}/itfd_creator/{pack}.db"
+    with sqlite3.connect(path) as conn:
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT * FROM luck_nums WHERE num = ?", (luck_num,))
+
+        data = cursor.fetchone()
+
+    return _luck_num_from_db(data)
+
+
+def get_all_luck_num(pack: str,
+                     user: str) -> list[[int, list[int], list[int, int]]]:
+    path = f"data/users/{user}/itfd_creator/{pack}.db"
+    with sqlite3.connect(path) as conn:
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT * FROM luck_nums")
+
+        data = cursor.fetchall()
+
+    return list(map(_luck_num_from_db, data))
+
+
+def get_possible_luck_nums(pack: str,
+                           user: str) -> list[int]:
+    path = f"data/users/{user}/itfd_creator/{pack}.db"
+    with sqlite3.connect(path) as conn:
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT num FROM luck_nums")
+
+        data = cursor.fetchall()
+
+    return [num for num, in data]
+
+
+def add_luck_num(user: str,
+                 pack: str,
+                 luck_num: int,
+                 minor_luck_nums: list[int],
+                 items_list: [[int, int]]):
+    minor_luck_nums = _convert_mln_to_string(minor_luck_nums)
+    items_list = _convert_items_list_to_string(items_list)
+
+    path = f"data/users/{user}/itfd_creator/{pack}.db"
+    with sqlite3.connect(path) as conn:
+        cursor = conn.cursor()
+
+        cursor.execute("INSERT INTO luck_nums(num, minor_luck_nums, drops)"
+                       "VALUES (?, ?, ?)",
+                       (luck_num, minor_luck_nums, items_list))
+
+        cursor.execute(f"CREATE TABLE _luck_num_linkage_{luck_num}("
+                       "    num INT PRIMARY KEY)")
+
+        for minor in set(minor_luck_nums):
+            cursor.execute(f"INSERT INTO _luck_num_linkage_{minor}(num) "
+                           f"VALUES (?)", (luck_num,))
+
+
+def edit_luck_num(user: str,
+                  pack: str,
+                  luck_num: int,
+                  new_luck_num: int,
+                  minor_luck_nums: list[int],
+                  items_list: [[int, int]]):
+    minor_luck_nums = _convert_mln_to_string(minor_luck_nums)
+    items_list = _convert_items_list_to_string(items_list)
+
+    path = f"data/users/{user}/itfd_creator/{pack}.db"
+    with sqlite3.connect(path) as conn:
+        cursor = conn.cursor()
+
+        cursor.execute(f"SELECT minor_luck_nums FROM luck_num WHERE num = ?",
+                       (luck_num,))
+
+        old_minors = cursor.fetchone()
+        old_minors = set(_convert_string_to_mln(old_minors))
+        for minor in old_minors:
+            cursor.execute(f"DELETE FROM _luck_num_linkage_{minor} "
+                           " WHERE num = ?", (luck_num,))
+
+        cursor.execute("UPDATE luck_nums "
+                       "SET num = ?, minor_luck_nums = ?, drops = ? "
+                       "WHERE num = ?",
+                       (new_luck_num, minor_luck_nums, items_list, luck_num))
+
+        if luck_num != new_luck_num:
+            cursor.execute(f"ALTER TABLE _luck_num_linkage_{luck_num}"
+                           f"RENAME TO _luck_num_linkage_{new_luck_num}")
+
+        for minor in set(minor_luck_nums):
+            cursor.execute(f"INSERT INTO _luck_num_linkage_{minor}(num) "
+                           f"VALUES (?)", (new_luck_num,))
+
+
+def get_luck_num_linkages(user: str,
+                          pack: str,
+                          luck_num: int) -> list[int]:
+    path = f"data/users/{user}/itfd_creator/{pack}.db"
+    with sqlite3.connect(path) as conn:
+        cursor = conn.cursor()
+
+        cursor.execute(f"SELECT * FROM _luck_num_linkage_{luck_num}")
+
+        linkages = cursor.fetchall()
+
+    return [link for link, in linkages]
+
+
+def delete_luck_num(user: str,
+                    pack: str,
+                    luck_num: int):
+    path = f"data/users/{user}/itfd_creator/{pack}.db"
+    with sqlite3.connect(path) as conn:
+        cursor = conn.cursor()
+
+        cursor.execute("DELETE FROM luck_nums WHERE num = ?", (luck_num,))
+
+        cursor.execute(f"DROP TABLE _luck_num_linkage_{luck_num}")

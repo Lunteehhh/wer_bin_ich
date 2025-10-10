@@ -33,7 +33,7 @@ def maps_page(request: Request,
 
     maps = maps_service.maps(user, pack)
 
-    return templates.TemplateResponse("itfd_creator/map_page.html", {
+    return templates.TemplateResponse("itfd_creator/maps/map_page.html", {
         "request": request,
         "index_tab": "itfd-creator",
         "user_name": user,
@@ -57,7 +57,7 @@ def add_map(request: Request,
         return RedirectResponse(url="/itfd-creator/", status_code=303)
     user = current_user["user_name"]
 
-    return templates.TemplateResponse("itfd_creator/map_add.html", {
+    return templates.TemplateResponse("itfd_creator/maps/map_add.html", {
         "request": request,
         "index_tab": "itfd-creator",
         "user_name": user,
@@ -84,7 +84,7 @@ def add_map(request: Request,
     map_id = maps_service.add_map(user, pack, name)
     map_data = maps_service.get(user, pack, map_id)
 
-    return templates.TemplateResponse("itfd_creator/map_show.html", {
+    return templates.TemplateResponse("itfd_creator/maps/map_show.html", {
         "request": request,
         "index_tab": "itfd-creator",
         "user_name": user,
@@ -114,7 +114,7 @@ def show_map(map_id: int,
 
     print(map_data)
 
-    return templates.TemplateResponse("itfd_creator/map_show.html", {
+    return templates.TemplateResponse("itfd_creator/maps/map_show.html", {
         "request": request,
         "index_tab": "itfd-creator",
         "user_name": user,
@@ -144,7 +144,7 @@ def add_node_page(request: Request,
     possible_monsters = monster_service.possible_monsters(user, pack)
     possible_nodes = maps_service.possible_nodes(user, pack)
 
-    return templates.TemplateResponse("itfd_creator/map_node_form.html", {
+    return templates.TemplateResponse("itfd_creator/maps/map_node_form.html", {
         "request": request,
         "index_tab": "itfd-creator",
         "user_name": user,
@@ -223,7 +223,7 @@ def edit_node_page(request: Request,
           type(map_id),
           type(node.dictionary()))
 
-    return templates.TemplateResponse("itfd_creator/map_node_form.html", {
+    return templates.TemplateResponse("itfd_creator/maps/map_node_form.html", {
         "request": request,
         "index_tab": "itfd-creator",
         "user_name": user,
@@ -250,7 +250,7 @@ async def edit_node(
                            map_id,
                            node_id,
                            name=insert_data["name"],
-                           category=insert_data["category"],
+                           category=int(insert_data["category"]),
                            connections=insert_data["connections"],
                            sentences_first=insert_data["sentences_first"],
                            sentences_last=insert_data["sentences_last"],
@@ -285,7 +285,7 @@ async def delete_node(request: Request,
 
     map_data = maps_service.get(user, pack, map_id)
 
-    return templates.TemplateResponse("itfd_creator/map_show.html", {
+    return templates.TemplateResponse("itfd_creator/maps/map_show.html", {
         "request": request,
         "index_tab": "itfd-creator",
         "user_name": user,
@@ -316,7 +316,7 @@ async def possible_nodes(
 
     user = current_user["user_name"]
 
-    maps_nodes: dict[int, list[str | list]] = maps_service.possible_nodes(user, pack)
+    maps_nodes = maps_service.possible_nodes(user, pack)
 
     print("maps-node: ", maps_nodes)
     return {
@@ -324,3 +324,36 @@ async def possible_nodes(
         "data": maps_nodes
     }
 
+
+@router.get("/maps/{map_id}/linkages/{node_id}")
+def get_linkages(request: Request,
+                 pack: str,
+                 map_id: int,
+                 node_id: int,
+                 current_user: dict = Depends(auth.check_access_token)):
+    print("hiiii")
+    if current_user["error"]:
+        response = RedirectResponse(url="/you/login", status_code=303)
+        response.delete_cookie("access_token")
+        response.delete_cookie("user_name")
+        return response
+
+    if not pack:
+        return RedirectResponse(url="/itfd-creator/", status_code=303)
+    user = current_user["user_name"]
+
+    node_name = maps_service.get_node_name(user, pack, map_id, node_id)
+    linkages = maps_service.get_node_linkages(user, pack, map_id, node_id)
+
+    return templates.TemplateResponse(
+        "itfd_creator/maps/map_node_linkage.html",
+        {
+            "request": request,
+            "index_tab": "itfd-creator",
+            "user_name": user,
+            "tools": itfd_creator.TOOLS,
+            "pack": pack,
+            "name": node_name,
+            "linkages": linkages
+        }
+    )

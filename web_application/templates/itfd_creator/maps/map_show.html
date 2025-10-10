@@ -63,6 +63,11 @@
                 {% endfor %}
             </td>
             <td>
+                <!-- Linkages Button -->
+                <form method="get" action="/itfd-creator/packs/{{ pack }}/maps/{{ map_name }}/linkages/{{ node_id }}" style="display:inline;">
+                    <button type="submit">Linkages</button>
+                </form>
+
                 <!-- Edit Button -->
                 <form method="get" action="/itfd-creator/packs/{{ pack }}/maps/{{ map_name }}/edit-node/{{ node_id }}" style="display:inline;">
                     <button type="submit">Edit</button>

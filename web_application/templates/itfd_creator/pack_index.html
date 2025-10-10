@@ -3,4 +3,70 @@
 {% block tools_content %}
 <h1>Welcome to your pack</h1>
 
+Description:
+<br>
+<span id="editableText">{{ description }}</span>
+<textarea id="textInput" style="display:none;"></textarea>
+
+<script>
+    const span = document.getElementById('editableText');
+    const textarea = document.getElementById('textInput');
+
+    function autoResize(el) {
+        el.style.height = 'auto';
+        el.style.height = el.scrollHeight + 'px'; 
+    }
+
+    span.addEventListener('click', () => {
+        textarea.value = span.textContent;
+        span.style.display = 'none';
+        textarea.style.display = 'inline';
+        textarea.focus();
+
+        autoResize(textarea);
+    });
+
+    textarea.addEventListener('input', () => autoResize(textarea));
+
+    textarea.addEventListener('blur', () => {
+        span.textContent = textarea.value;
+        textarea.style.display = 'none';
+        span.style.display = 'inline-block';
+
+        console.log('New description:', textarea.value);
+        fetch('/itfd-creator/packs/{{ pack }}/edit-description', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ description: textarea.value })
+        })
+        .then(response => {
+            if (!response.ok) {
+                alert('Error saving description');
+            }
+        });
+    });
+</script>
+<style>
+#textInput {
+    width: 100%;
+    height: 10rem;
+    font-family: inherit;
+    font-size: inherit;
+    padding: 4px;
+    box-sizing: border-box;
+    overflow: hidden; /* Scrollbar verhindern */
+    resize: none;
+}
+
+span {
+    display: inline-block;   /* erlaubt Zeilenumbruch und Breite */
+    white-space: pre-wrap;   /* übernimmt \n aus dem Text */
+    word-wrap: break-word;   /* lange Wörter umbrechen */
+    max-width: 100%;      /* nicht über Container hinaus */
+}
+
+</style>
+
 {% endblock %}

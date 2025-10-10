@@ -18,6 +18,11 @@ def add_new_pack(user: str, pack_name: str):
     with sqlite3.connect(path) as conn:
         cursor = conn.cursor()
 
+        cursor.execute("CREATE TABLE luck_nums("
+                       "    num INTEGER PRIMARY KEY,"
+                       "    minor_luck_nums TEXT,"
+                       "    drops TEXT)")
+
         cursor.execute("CREATE TABLE IF NOT EXISTS items("
                        "    num INTEGER PRIMARY KEY,"
                        "    name TEXT, "
@@ -37,12 +42,36 @@ def add_new_pack(user: str, pack_name: str):
                        "    items TEXT,"
                        "    sentences TEXT)")
 
+        cursor.execute("CREATE TABLE pack_data("
+                       "    description TEXT)")
+
         maps_service.init_table(user, pack_name)
-
-
 
 
 def delete_pack(user: str, pack_name: str):
     path = f"data/users/{user}/itfd_creator/{pack_name}.db"
 
     os.remove(path)
+
+
+def get_pack_data(user: str, pack: str) -> tuple[str]:
+    path = f"data/users/{user}/itfd_creator/{pack}.db"
+
+    with sqlite3.connect(path) as conn:
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT * FROM pack_data")
+
+        return cursor.fetchone()
+
+
+def edit_description(user: str, pack: str, description: str):
+    path = f"data/users/{user}/itfd_creator/{pack}.db"
+
+    with sqlite3.connect(path) as conn:
+        cursor = conn.cursor()
+
+        cursor.execute("UPDATE pack_data SET description = ?", (description,))
+
+        conn.commit()
+

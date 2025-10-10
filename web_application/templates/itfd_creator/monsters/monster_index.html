@@ -18,20 +18,20 @@
     <tbody>
         {% for monster in monsters %}
         <tr>
-            <td>{{ monster[0] }}</td>
             <td>{{ monster[1] }}</td>
             <td>{{ monster[2] }}</td>
             <td>{{ monster[3] }}</td>
+            <td>{{ monster[4] }}</td>
             <td>
                 <ul>
-                    {% for item in monster[4] %}
+                    {% for item in monster[5] %}
                     <li>{{ item }}</li>
                     {% endfor %}
                 </ul>
             </td>
             <td>
                 <ul>
-                    {% for sentence in monster[5] %}
+                    {% for sentence in monster[6] %}
                     <li>{{ sentence }}</li>
                     {% endfor %}
                 </ul>

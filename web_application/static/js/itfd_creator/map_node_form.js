@@ -8,8 +8,7 @@ const appData = window.appData;
 const dataInsert = appData.insertData;
 const packName = appData.packName;
 const mapName = appData.mapName;
-const nodeName = appData.name
-const nodeId = appData.nodeId
+const nodeId = appData.nodeId;
 
 // data
 const possibleNodes = await fetchPossibleMapsNodes(packName, mapName);
@@ -106,12 +105,13 @@ function permOptions() {
 function mapOptions() {
     const mapNames = possibleNodes;
     let options = [];
+    console.log("MAP OPTIONS:", mapNames);
 
     for (let key in mapNames) {
         const newOption = document.createElement("option");
 
         newOption.value = key;
-        newOption.text = mapNames[key];
+        newOption.text = mapNames[key][0];
 
         options.push(newOption);
     }
@@ -120,16 +120,19 @@ function mapOptions() {
 function nodesOptions(map_id) {
     const nodeDict = possibleNodes[map_id][1];
     let options = [];
-    console.log(nodeDict);
 
-    nodeDict.forEach((_nodeId, _nodeName) => {
-        const newOption = document.createElement("option");
+    if (nodeDict) {
+        nodeDict.forEach(([_nodeId, _nodeName]) => {
+            const newOption = document.createElement("option");
 
-        newOption.value = _nodeId;
-        newOption.text = _nodeName;
+            newOption.value = _nodeId;
+            newOption.text = _nodeName;
 
-        options.push(newOption);
-    })
+            options.push(newOption);
+        })
+    }
+    console.log("Options:", options);
+    console.log("nodeDict:", nodeDict);
     return options;
 }
 function itemsOptions() {
@@ -157,11 +160,11 @@ function monstersOptions() {
     noneOption.text = "---";
     options.push(noneOption);
 
-    possibleMonsters.forEach((_monsterData, _) => {
+    possibleMonsters.forEach(([monsterId, monsterName]) => {
         const newOption = document.createElement("option");
 
-        newOption.value = _monsterData[0];
-        newOption.text = `${_monsterData[0]}: ${_monsterData[1]}`;
+        newOption.value = monsterId;
+        newOption.text = `${monsterId}: ${monsterName}`;
 
         options.push(newOption);
     })
@@ -223,6 +226,7 @@ function addConnection() {
     newLabelNode.appendChild(newSelectNode);
     newSelectNode.id = "connections-node-" + countConn;
     console.log(`CREATE CONN: ${newSelectNode.id}`);
+    console.log(`${optionsNode}`)
     optionsNode.forEach((option) => {
         newSelectNode.add(option);
     });
@@ -269,9 +273,17 @@ function addConnection() {
 
     return [newSelectNode, newInputTitle, newSelectPerm];
 }
+if (!possibleNodes[mapName][1].length) {
+    console.log("DEACTIVATE ADD CONN BUTTON");
+    addConnBtn.disabled = true;
+} else {
+    console.log("ACTIVE ADD CONN BUTTON");
+    console.log(possibleNodes[mapName][1]);
+}
 addConnBtn.addEventListener('click', () => {
     addConnection();
 })
+
 
 /* Sentenced First
  * HTML Elements */
@@ -615,6 +627,14 @@ function addEntrance(){
     entranceNums.push(countEntrances++);
     return [selectMap, selectNode, inputTitle, selectPerm];
 }
+/* init */
+addEntranceBtn.disabled = true;
+for (let map in possibleNodes) {
+    if (possibleNodes[map][1].length) {
+        addEntranceBtn.disabled = false;
+        break;
+    }
+}
 addEntranceBtn.addEventListener('click', () => {
     addEntrance();
 })
@@ -703,7 +723,9 @@ form.addEventListener("submit", (event) => {
     itemNums.forEach(num => {
         const selectItem = document.getElementById("select-item-" + num);
 
-        items.push(selectItem.value);
+        if (selectItem.value !==  "none") {
+            items.push(selectItem.value);
+        }
     });
 
     // Monsters
@@ -711,7 +733,9 @@ form.addEventListener("submit", (event) => {
     monsterNums.forEach(num => {
         const selectMonster = document.getElementById("select-monster-" + num);
 
-        monsters.push(selectMonster.value);
+        if (selectMonster.value !==  "none") {
+            monsters.push(selectMonster.value);
+        }
     });
 
     // Commands
@@ -728,6 +752,7 @@ form.addEventListener("submit", (event) => {
     // Entrances
     let additionalData = [];
     if (category === "1") {
+        console.log(typeof category);
         entranceNums.forEach(num => {
             const selectMap = document.getElementById("entrance-map-" + num);
             const selectNode = document.getElementById("entrance-node-" + num);
@@ -843,8 +868,10 @@ if (dataInsert) {
         _selectCommand.value = command;
     })
 
+    // Additional Data
     console.log("GLOBAL CATEGORY: " + globalCategory);
-    if (globalCategory === "1") {
+    if (globalCategory === 1) {
+        console.log("ENTRANCES!!!")
         console.log("GLOBAL CATEGORY: " + globalCategory);
         const entranceValues = dataInsert["additional_data"]
         divEntranceContainer.style.display = "block";

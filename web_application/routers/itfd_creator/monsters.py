@@ -34,23 +34,25 @@ def monsters_index(request: Request,
     fetched_monsters = monster_service.monsters(user, pack)
     print(fetched_monsters)
 
-    return templates.TemplateResponse("itfd_creator/monster_index.html", {
-        "request": request,
-        "index_tab": "itfd-creator",
-        "user_name": current_user["user_name"],
-        "tools": itfd_creator.TOOLS,
-        "monsters": fetched_monsters,
-        "pack": pack
-    })
+    return templates.TemplateResponse(
+        "itfd_creator/monsters/monster_index.html",
+        {
+            "request": request,
+            "index_tab": "itfd-creator",
+            "user_name": current_user["user_name"],
+            "tools": itfd_creator.TOOLS,
+            "monsters": fetched_monsters,
+            "pack": pack
+        }
+    )
 
 
-@router.get("/monsters/{monster}",
+@router.get("/monsters/{monster_id}",
             response_class=HTMLResponse)
 def monster_show(request: Request,
-                 monster: str,
+                 monster_id: int,
                  pack: str,
                  current_user: dict = Depends(auth.check_access_token)):
-    return
     if current_user["error"]:
         response = RedirectResponse(url="/you/login", status_code=303)
         response.delete_cookie("access_token")
@@ -59,17 +61,21 @@ def monster_show(request: Request,
 
     user = current_user["user_name"]
 
-    monster_data = monster_service.get(user, pack, monster)
-    if not monster:
+    monster_data = monster_service.get(user, pack, monster_id)
+    if not monster_id:
+        print("1111")
         return HTMLResponse(content="Monster not found!", status_code=404)
-
-    linkage_maps = monster_service.get_linkage(user, pack, monster)
-    return templates.TemplateResponse("itfd_creator/monster_show.html", {
-        "request": request,
-        "monster": monster_data,
-        "linkage_maps": linkage_maps,
-        "pack": pack
-    })
+    print("222222")
+    linkage_maps = monster_service.get_linkage(user, pack, monster_id)
+    return templates.TemplateResponse(
+        "itfd_creator/monsters/monster_show.html",
+        {
+            "request": request,
+            "monster": monster_data,
+            "linkage_maps": linkage_maps,
+            "pack": pack
+        }
+    )
 
 
 @router.get("/add-monster",
@@ -87,14 +93,17 @@ def add_monster_page(request: Request,
 
     possible_items = item_service.possible_items(user, pack)
 
-    return templates.TemplateResponse("itfd_creator/monster_add.html", {
-        "request": request,
-        "index_tab": "itfd-creator",
-        "user_name": user,
-        "tools": itfd_creator.TOOLS,
-        "possible_items": possible_items,
-        "pack": pack
-    })
+    return templates.TemplateResponse(
+        "itfd_creator/monsters/monster_add.html",
+        {
+            "request": request,
+            "index_tab": "itfd-creator",
+            "user_name": user,
+            "tools": itfd_creator.TOOLS,
+            "possible_items": possible_items,
+            "pack": pack
+        }
+    )
 
 
 @router.post("/add-monster")
@@ -124,14 +133,14 @@ def add_monster(pack: str,
     monster_service.add(user, pack,
                         name, health, strength, xp, items, sentences)
 
-    return RedirectResponse(url=f"/monsters",
+    return RedirectResponse(url=f"/itfd-creator/packs/{pack}/monsters",
                             status_code=303)
 
 
-@router.get("/edit-monster/{monster}",
+@router.get("/edit-monster/{monster_id}",
             response_class=HTMLResponse)
 def edit_monster_page(request: Request,
-                      monster: str,
+                      monster_id: int,
                       pack: str,
                       current_user: dict = Depends(auth.check_access_token)):
     if current_user["error"]:
@@ -142,23 +151,27 @@ def edit_monster_page(request: Request,
 
     user = current_user["user_name"]
 
-    monster = monster_service.get(user, pack, monster)
+    monster = monster_service.get(user, pack, monster_id)
     if not monster:
         return HTMLResponse(content="Monster nicht gefunden!", status_code=404)
 
     possible_items = item_service.possible_items(user, pack)
-    return templates.TemplateResponse("itfd_creator/monster_edit.html", {
-        "request": request,
-        "monster": monster,
-        "possible_items": possible_items,
-        "pack": pack
-    })
+    return templates.TemplateResponse(
+        "itfd_creator/monsters/monster_edit.html",
+        {
+            "request": request,
+            "monster": monster,
+            "monster_id": monster_id,
+            "possible_items": possible_items,
+            "pack": pack
+        }
+    )
 
 
-@router.post("/edit-monster/{monster}")
+@router.post("/edit-monster/{monster_id}")
 def edit_monster_post(request: Request,
                       pack: str,
-                      monster: str,
+                      monster_id: int,
                       current_user: dict = Depends(auth.check_access_token),
                       name: str = Form(...),
                       strength: int = Form(...),
@@ -173,30 +186,33 @@ def edit_monster_post(request: Request,
         return response
 
     user = current_user["user_name"]
-    if not monster_service.check_if_monster_exists(user, pack, monster):
+
+    if not monster_service.check_if_monster_exists(user, pack, monster_id):
         return HTMLResponse(content="Monster wasn't found!", status_code=404)
 
-    monster_service.edit(user, pack,
-                         name, health, strength, xp, items, sentences)
+    if not items:
+        items = None
 
-    monster_service.edit(user, pack, monster,
-                         health, strength, xp, items, sentences,
-                         name if name != monster else None)
+    monster_service.edit(user, pack, monster_id, name,
+                         health, strength, xp, items, sentences)
 
     fetched_monsters = monster_service.monsters(user, pack)
 
-    return templates.TemplateResponse("itfd_creator/monster_index.html", {
-        "request": request,
-        "index_tab": "itfd-creator",
-        "user_name": current_user["user_name"],
-        "tools": itfd_creator.TOOLS,
-        "monsters": fetched_monsters,
-        "pack": pack
-    })
+    return templates.TemplateResponse(
+        "itfd_creator/monsters/monster_index.html",
+        {
+            "request": request,
+            "index_tab": "itfd-creator",
+            "user_name": current_user["user_name"],
+            "tools": itfd_creator.TOOLS,
+            "monsters": fetched_monsters,
+            "pack": pack
+        }
+    )
 
 
-@router.post("/delete-monster/{monster}")
-def delete_monster(monster: str,
+@router.post("/delete-monster/{monster_id}")
+def delete_monster(monster_id: int,
                    pack: str,
                    current_user: dict = Depends(auth.check_access_token)):
     """Ein Item löschen."""
@@ -210,9 +226,12 @@ def delete_monster(monster: str,
         return RedirectResponse(url="/itfd-creator/", status_code=303)
 
     user = current_user["user_name"]
-    monster_service.delete(user, pack, monster)
+    monster_service.delete(user, pack, monster_id)
 
-    return RedirectResponse(url="/itfd-creator/monster", status_code=303)
+    return RedirectResponse(
+        url=f"/itfd-creator/packs/{pack}/monsters",
+        status_code=303
+    )
 
 
 @router.get("/selectable-monsters")

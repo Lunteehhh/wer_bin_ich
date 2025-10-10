@@ -25,18 +25,20 @@ def _monster_from_db(name: str,
                      strength: int,
                      xp: int,
                      items: str,
-                     sentences: str) -> [str, int, int, int, list, list]:
+                     sentences: str) -> tuple[str, int, int, int, list, list]:
     if items:
         items: list[int] = list(map(int, items.split(";")))
     else:
         items = []
-    sentences: list[str] = sentences.split("\n") or []
+
+    sentences: list[str] = sentences.split("\n") if sentences else []
 
     return name, health, strength, xp, items, sentences
 
 
 def monsters(user: str,
-             pack_name: str) -> list:
+             pack_name: str
+             ) -> list:
     path = f"data/users/{user}/itfd_creator/{pack_name}.db"
     with sqlite3.connect(path) as conn:
         cursor = conn.cursor()
@@ -45,7 +47,7 @@ def monsters(user: str,
 
         results = cursor.fetchall()
 
-    return [_monster_from_db(*mon[1:]) for mon in results]
+    return [(mon[0], *_monster_from_db(*mon[1:])) for mon in results]
 
 
 def possible_monsters(user: str,
@@ -88,10 +90,10 @@ def add(user: str,
                                f"(monster, count)"
                                f"VALUES (?, ?)", (monster_id, count))
 
-            cursor.execute(f"CREATE TABLE IF NOT EXISTS _monster_{name}("
-                           f"   map INT,"
-                           f"   node INT,"
-                           f"   count INT)")
+        cursor.execute(f"CREATE TABLE IF NOT EXISTS _monster_{monster_id}("
+                       f"   map INT,"
+                       f"   node INT,"
+                       f"   count INT)")
 
         conn.commit()
 
@@ -108,7 +110,7 @@ def get(user: str,
         result = cursor.fetchone()
 
     if result:
-        return _monster_from_db(*result)
+        return _monster_from_db(*result[1:])
     else:
         return None
 
@@ -128,12 +130,13 @@ def edit(user: str,
         cursor.execute(f"SELECT items FROM monsters WHERE id = ?",
                        (monster_id,))
 
-        fetched_items, = cursor.fetchone()
-        fetched_items = set(fetched_items.split(";"))
+        fetched_items = cursor.fetchone()[0]
+        if fetched_items:
+            fetched_items = set(fetched_items.split(";"))
 
-        for item_id in fetched_items:
-            cursor.execute(f"DELETE FROM _item_{item_id}_monster "
-                           f"WHERE monster = ?", (monster_id,))
+            for item_id in fetched_items:
+                cursor.execute(f"DELETE FROM _item_{item_id}_monster "
+                               f"WHERE monster = ?", (monster_id,))
 
         counted_items = Counter(items)
         for item_id, count in counted_items.items():
@@ -148,8 +151,13 @@ def edit(user: str,
 
         update_linkage()
 
+        if items is not None:
+            items: str = ";".join(map(str, items))
+
         if sentences:
-            sentences: str = "\n".join(sentences)
+            sentences = "\n".join(sentences)
+        else:
+            sentences = None
 
         cursor.execute("UPDATE monsters SET"
                        "    name = ?, "
@@ -176,8 +184,9 @@ def delete(user: str,
         cursor.execute(f"SELECT items FROM monsters WHERE id = ?",
                        (monster_id,))
 
-        fetched_items = cursor.fetchone()
-        if fetched_items[0] != "":
+        fetched_items = cursor.fetchone()[0]
+        if fetched_items and fetched_items[0] != "":
+            print(fetched_items)
             fetched_items = set(fetched_items[0].split(";"))
 
             for item_id in fetched_items:
@@ -217,7 +226,7 @@ def delete(user: str,
 
 def get_linkage(user: str,
                 pack_name: str,
-                monster_id: str) -> list[tuple[int, int, int]]:
+                monster_id: int) -> list[tuple[int, int, int]]:
     path = f"data/users/{user}/itfd_creator/{pack_name}.db"
     with sqlite3.connect(path) as conn:
         cursor = conn.cursor()

@@ -97,12 +97,19 @@ def pack_page(request: Request,
 
     user = current_user["user_name"]
 
+    description = utils.get_pack_data(user, pack)
+
+    if not description:
+        description = "Click to add a description..."
+
     return templates.TemplateResponse("itfd_creator/pack_index.html", {
         "request": request,
         "index_tab": "itfd-creator",
         "user_name": user,
         "tools": itfd_creator.TOOLS,
-        "pack": pack
+        "pack": pack,
+
+        "description": description
     })
 
 
@@ -187,4 +194,21 @@ async def selectable_permissions(
             2: "fire resistance",
             3: "have skill 1"
         }
+    }
+
+
+@router.post("/packs/{pack}/edit-description", response_class=JSONResponse)
+async def edit_description(request: Request,
+                           pack: str,
+                           current_user: dict = Depends(auth.check_access_token)):
+    data = await request.json()
+
+    print(data)
+
+    utils.edit_description(current_user["user_name"],
+                           pack,
+                           data["description"])
+
+    return {
+        "status": "ok"
     }

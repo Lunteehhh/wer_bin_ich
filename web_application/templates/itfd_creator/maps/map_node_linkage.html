@@ -1,0 +1,16 @@
+{% extends "itfd_creator/base_tools.html" %}
+
+{% block head %}
+{% endblock %}
+
+{% block tools_content %}
+<h2>Node Linkages for "{{ name }}"</h2>
+
+{% for map_id, node_id, node_name in linkages %}
+<a href="/itfd-creator/packs/test_pack/maps/{{ map_id }}">{{ node_name }}</a>
+{% endfor %}
+
+{% endblock %}
+
+{% block script %}
+{% endblock %}
