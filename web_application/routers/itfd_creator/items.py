@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Depends, Form
+from fastapi import APIRouter, Request, Depends, Form, Body
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
@@ -77,24 +77,25 @@ def item_show(request: Request,
 def add_item_form(request: Request,
                   pack: str,
                   current_user: dict = Depends(auth.check_access_token)):
-    return templates.TemplateResponse("itfd_creator/items/item_add.html", {
+    return templates.TemplateResponse("itfd_creator/items/item_form.html", {
         "request": request,
         "index_tab": "itfd-creator",
         "user_name": current_user["user_name"],
         "tools": itfd_creator.TOOLS,
-        "pack": pack
+        "pack": pack,
+        "item": None
     })
 
 
 @router.post("/add-item")
 async def add_item(pack: str,
-                   name: str = Form(...),
-                   category: int = Form(...),
-                   a: int = Form(None),
-                   b: int = Form(None),
-                   c: int = Form(None),
-                   d: int = Form(None),
-                   e: int = Form(None),
+                   name: str = Body(...),
+                   category: int = Body(...),
+                   a: int = Body(None),
+                   b: int = Body(None),
+                   c: int = Body(None),
+                   d: int = Body(None),
+                   e: int = Body(None),
                    current_user: dict = Depends(auth.check_access_token)):
     """Item hinzufügen."""
     if current_user["error"]:
@@ -135,26 +136,26 @@ def edit_item_form(request: Request,
     if not item:
         return HTMLResponse("Item not found", status_code=404)
 
-    return templates.TemplateResponse("itfd_creator/items/item_edit.html", {
+    return templates.TemplateResponse("itfd_creator/items/item_form.html", {
         "request": request,
-        "item": item,
         "tools": itfd_creator.TOOLS,
         "index_tab": "itfd-creator",
         "user_name": user,
-        "pack": pack
+        "pack": pack,
+        "item": item
     })
 
 
-@router.post("edit-item/{item_id}")
+@router.post("/edit-item/{item_id}")
 def edit_item_post(item_id: int,
                    pack: str,
-                   name: str = Form(...),
-                   category: int = Form(...),
-                   a: int = Form(None),
-                   b: int = Form(None),
-                   c: int = Form(None),
-                   d: int = Form(None),
-                   e: int = Form(None),
+                   name: str = Body(...),
+                   category: int = Body(...),
+                   a: int | None = Body(None),
+                   b: int | None = Body(None),
+                   c: int | None = Body(None),
+                   d: int | None = Body(None),
+                   e: int | None = Body(None),
                    current_user: dict = Depends(auth.check_access_token)):
     """Änderungen an einem Item speichern."""
     if current_user["error"]:

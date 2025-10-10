@@ -1,14 +1,14 @@
 import sqlite3
 
-"""           cat |      a      |    b    |      c      |   d   |    e
-quest items:   -1 |             |         |             |       |
-normal items:   0 |     ---     |   ---   |             |       | command
-Weapons/Tools:  1 | durability  | damage  | type        |       | command
-utils:          2 | durability  |         |             |       | command
-food:          10 | food        | effect  | fx a        | fx b  | command
-drink:         11 | drink       | effect  | fx a        | fx b  | command
-Potion:        12 | duration    | effect  | fx a        | fx b  | command
-loot bags:     20 | luck        | count   | 100% chance | item  |
+"""           cat |      a      |    b        |      c      |   d   |    e
+quest items:   -1 |             |             |             |       |
+normal items:   0 |     ---     |   ---       |             |       | command
+Weapons/Tools:  1 | durability  | damage      | type        |       | command
+utils:          2 | durability  |             |             |       | command
+food:          10 | food        | effect      | fx a        | fx b  | command
+drink:         11 | drink       | effect      | fx a        | fx b  | command
+Potion:        12 | duration    | effect      | fx a        | fx b  | command
+loot bags:     20 | luck        | 100% chance | item        |       |
 
 type: sword, bow, want
 """
@@ -23,11 +23,6 @@ def add(user: str,
         c: int,
         d: int,
         e: int):
-    a = a or 0
-    b = b or 0
-    c = c or 0
-    d = d or 0
-    e = e or 0
 
     def _nearest_num() -> int:
         nonlocal cursor

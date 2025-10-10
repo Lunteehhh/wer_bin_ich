@@ -1,6 +1,6 @@
 {% extends "itfd_creator/base_tools.html" %}
 
-{% block head %}
+{% block extra_head %}
 <link rel="stylesheet" href="/static/css/itfd_creator/map_node_form.css">
 
 <!--- Data
@@ -15,8 +15,6 @@
 
     window.appData.insertData = {{ node_data|tojson }};
 
-    console.log("inserttttttt: ");
-    console.log(window.appData.insertData);
 </script>
 {% endblock %}
 
